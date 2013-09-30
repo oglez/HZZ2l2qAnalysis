@@ -1,0 +1,19 @@
+<export>
+</export>
+<library file="*.cc" name="HZZ2l2qAnalysisHiggs2l2qCodePlugins">
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="DataFormats/Candidate"/>
+    <use name="DataFormats/PatCandidates"/>
+    <use name="DataFormats/HepMCCandidate"/>
+    <use name="DataFormats/Math"/>
+    <use name="CommonTools/UtilAlgos"/>
+    <use name="CommonTools/CandUtils"/>
+    <use name="RecoBTag/PerformanceDB"/>
+    <use name="CondFormats/PhysicsToolsObjects"/>
+    <use name="RecoBTag/Records"/>
+    <use name="RecoEgamma/EgammaTools"/>
+    <use name="EGamma/EGammaAnalysisTools"/>
+</library>

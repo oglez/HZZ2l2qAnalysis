@@ -1,0 +1,16 @@
+<use     name="rootgraphics"/>
+<use     name="rootminuit"/>
+<use     name="rootminuit2"/>
+<use     name="Utilities/General"/>
+<use     name="FWCore/FWLite"/>
+<use     name="DataFormats/FWLite"/>
+<bin     file="h2l2bAnalysis.cpp" name="h2l2b">
+  <use     name="PhysicsTools/Utilities"/>
+  <use     name="boost_program_options"/>
+  <use     name="boost"/>
+</bin>
+<bin     file="h2l2bAnalysisBkgOthers.cpp" name="bkgh2l2b">
+  <use     name="PhysicsTools/Utilities"/>
+  <use     name="boost_program_options"/>
+  <use     name="boost"/>
+</bin>

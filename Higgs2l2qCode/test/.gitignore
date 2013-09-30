@@ -1,0 +1,7 @@
+#
+# Files we obtain when running tests jobs
+#########################################
+*.log
+*.root
+arxiv_results
+#########################################
