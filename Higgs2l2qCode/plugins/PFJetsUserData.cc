@@ -1,3 +1,8 @@
+///
+/// Code modified by Oscar Gonzalez (8/X/2013) after inheriting it from Francesco.
+/// Modified to add the PU MVA information to the jets... as I best can, since Yun Ju did
+/// not give me enough feedback about the needed information.
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -130,7 +135,11 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
 
  //pick from the event the input jet collection 
   Handle< PFJetCollectionAB > jetColl;
+  //edm::Handle<edm::View<pat::Jet> > jetColl;
   iEvt.getByLabel(jetLabel_, jetColl);
+
+  //  edm::Handle<edm::View<pat::Jet> > jets;
+  //  iEvt.getByLabel("selectedPatJetsAK5",jets);
 
   /*
     Handle< std::vector<pat::Muon> > muColl;
@@ -157,11 +166,36 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
     }
   }
 
-  if(verbose_)std::cout<<"In the EVent are present "<<nTotInJets<<" PF jets."<<std::endl;
+  if(verbose_)std::cout<<"In the Event are present "<<nTotInJets<<" PF jets."<<std::endl;
 
    //create output collection with PF Candidates in the jets
   std::auto_ptr< std::vector< pat::Jet > > outputPFJets(new std::vector< pat::Jet >(*jetColl));
+  //std::auto_ptr< std::vector< pat::Jet > > outputPFJets(new std::vector< pat::Jet >);
 
+  // Adding the information we need from the PU tagger (official)
+  Handle<ValueMap<float> > puJetIdMVA;
+  iEvt.getByLabel("puJetMva","full53xDiscriminant",puJetIdMVA);
+
+  Handle<ValueMap<int> > puJetIdFlag;
+  iEvt.getByLabel("puJetMva","full53xId",puJetIdFlag);
+
+  //OLD  Handle<ValueMap<StoredPileupJetIdentifier> > jets;
+  //OLD  iEvt.getByLabel("puJetId",jets);
+
+//OLD   // Basic check:
+//OLD   cout<<"MIERDA: "<<jetColl->size()<<" "
+//OLD       <<outputPFJets->size()<<" "<<puJetIdMVA->size()<<" "<<puJetIdFlag->size()<<endl;
+//OLD 
+//OLD   for (unsigned int i=0; i<jetColl->size(); ++i ) {
+//OLD     edm::RefToBase<pat::Jet> jetRef(edm::Ref<PFJetCollectionAB>(jetColl,i));
+//OLD 
+//OLD     cout<<"   JET "<<" "<<jetColl->at(i).pt()<<endl;
+//OLD 
+//OLD     const pat::Jet & patjet = jetColl->at(i);
+//OLD     float mva   = (*puJetIdMVA)[jetRef];
+//OLD     //int    idflag = (*puJetIdFlag)[i];
+//OLD     cout << "MIERDA jet " << i << " pt " << patjet.pt() << " eta " << patjet.eta() << " PU JetID MVA " << mva <<endl; 
+//OLD   }
 
   // Initial setup for beta/beta* variables
   _verticesZ.clear();
@@ -173,8 +207,8 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
 
   uint njetInColl(0);
 
-  for(PFJetCollectionAB::iterator ijet=outputPFJets->begin(); ijet!=outputPFJets->end();++ijet ){
-    
+  for(PFJetCollectionAB::iterator ijet=outputPFJets->begin(); 
+      ijet!=outputPFJets->end();++ijet,++njetInColl ){
 
     // computing beta/beta* variables
     //    pat::Jet *jjet = &(*ijet);
@@ -213,7 +247,7 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
 	"pt= "<<ijet->pt()<<"  eta= "<<ijet->eta()<<"   phi= "<<ijet->phi()<<flush;
     }
     
-	   
+    // Processing the constituents!
     
     std::vector<reco::PFCandidatePtr> pfCandidates = ijet->getPFConstituents();
     
@@ -277,7 +311,11 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
     ijet->addUserFloat("ptDJet", ptDJet);
     ijet->addUserFloat("RMSJet", rmsCandJet);
 
-    njetInColl++;
+    // MVA PU information
+    ijet->addUserFloat("puJetIdMVA",(*puJetIdMVA)[jetRef]);
+    ijet->addUserInt("puJetIdFlag",(*puJetIdFlag)[jetRef]);
+
+    //OLD njetInColl++;
 
   }//end loop on jets
   

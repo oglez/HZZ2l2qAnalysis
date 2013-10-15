@@ -1,3 +1,6 @@
+/// @file
+/// Addition to the muon candidate of the required userdata
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -66,8 +69,30 @@ void Higgs2l2bMuonUserData::produce( Event & evt, const EventSetup & ) {
 
     float dzVtx(-1000.0);
     if( m.innerTrack().isNonnull() )
-      dzVtx = m.innerTrack()->dz(pv.position());
+      dzVtx = m.innerTrack()->dz(pv.position());  // Same as muonBestTrack
     m.addUserFloat("dzVtx", dzVtx);
+
+    //cout<<"MIERDA: "<<dzVtx<<" "<<m.muonBestTrack()->dz(pv.position())<<endl;
+
+    // The isolation, with delta-beta correction, is computed using the following
+    // recipe.
+    // It should be noted that we checked this is the same as the following
+    // that was used in the python: 
+    //       (max(0., (neutralHadronIso + photonIso - 0.5*puChargedHadronIso) ) 
+    //               + chargedHadronIso) < 0.12 * pt
+    //
+    int isolated=0;
+    float iso04 = m.pfIsolationR04().sumChargedHadronPt
+      + max(0.,m.pfIsolationR04().sumNeutralHadronEt+m.pfIsolationR04().sumPhotonEt-0.5*m.pfIsolationR04().sumPUPt);
+    if (iso04<0.12*m.pt()) isolated=1;   // IT IS ISOLATED (and also passed ID)
+
+    m.addUserInt("isIsolated",isolated);
+
+    // For checking values and muons:
+    // cout<<"MUON: "<<i<<" "<<m.pt()<<" "<<m.eta()<<" "<<isolated<<endl;
+    //    cout<<"MUON      "<<m.neutralHadronIso()<<" "<<m.photonIso()<<" "<<m.puChargedHadronIso()<<" "<<m.chargedHadronIso()<<" "<<endl;
+    //    cout<<"MUON      "<<m.pfIsolationR04().sumNeutralHadronEt<<" "<<m.pfIsolationR04().sumPhotonEt<<" "<<m.pfIsolationR04().sumPUPt<<" "<<m.pfIsolationR04().sumChargedHadronPt<<endl;
+
   }
 
   evt.put( muonColl);

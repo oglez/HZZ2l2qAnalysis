@@ -56,7 +56,7 @@ public:
 
 private:
   void produce( edm::Event &, const edm::EventSetup & );
-  //OGL  void helicityAngles(const reco::Candidate *, const reco::Candidate *);
+  void helicityAngles(const reco::Candidate *, const reco::Candidate *);
   //OGL  void helicityAnglesRefit(const reco::Candidate *, TLorentzVector, TLorentzVector);
   //OGL  int runJetKinFit(TLorentzVector &, TLorentzVector &, 
   //OGL  		  const TLorentzVector &, TLorentzVector &, TLorentzVector &,
@@ -65,20 +65,22 @@ private:
   //OGL		      float &, float &, float &);  
 
   InputTag higgsTag;//OGL, gensTag;
-//OGL, PFCandTag, vtxTag;
+  InputTag prunedJetTag;// pruned jets for pruned mass, subjet kinematics and subjet btags
+  //OGL, PFCandTag, vtxTag;
   //OGL  double deltaZCut_;
   //OGL  PFJetIDSelectionFunctor jetIDLoose;
 //OGL   pat::strbitset ret; 
-//OGL   // angular variables with unrefitted jet quantities
-//OGL   double costhetaNT1, costhetaNT2, costhetastarNT, phiNT, phiNT1;
-//OGL   // angular variables with refitted jet quantities
+  // angular variables with unrefitted jet quantities
+  double costhetaNT1, costhetaNT2, costhetastarNT, phiNT, phiNT1;
+  // angular variables with refitted jet quantities
 //OGL   double costhetaNT1Refit, costhetaNT2Refit, costhetastarNTRefit, phiNTRefit, phiNT1Refit;
 //OGL   double zNominalMass_;
 //OGL   JetKinFitter kinFitter_;
 };
 
 H2l2qmergedCandidateData::H2l2qmergedCandidateData( const ParameterSet & cfg ):
-  higgsTag( cfg.getParameter<InputTag>( "higgs" ) )
+  higgsTag( cfg.getParameter<InputTag>( "higgs" ) ),
+  prunedJetTag( cfg.getParameter<InputTag>( "prunedjets" ) )
   //OGL  ,gensTag( cfg.getParameter<edm::InputTag>("gensTag"))
 //OGL  ,PFCandTag( cfg.getParameter<edm::InputTag>("PFCandidates"))
 //OGL  ,vtxTag(cfg.getParameter<InputTag>("primaryVertices"))
@@ -97,6 +99,10 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
   Handle<std::vector<reco::CompositeCandidate> > higgsH;
   evt.getByLabel(higgsTag, higgsH);
 
+  Handle<std::vector<pat::Jet>> prunedH;
+  evt.getByLabel(prunedJetTag, prunedH);
+
+
 //OGL   Handle<GenParticleCollection> gensH;
 //OGL   evt.getByLabel(gensTag, gensH);
 //OGL   GenParticleCollection gens = *gensH;
@@ -112,7 +118,7 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
 
   auto_ptr<vector<pat::CompositeCandidate> > higgsColl( new vector<pat::CompositeCandidate> () );
 
-//OGL   float zzdPhi, zzdEta, zzdr, lldPhi, lldEta,lldr, jjdPhi, jjdEta, jjdr; 
+  float zzdPhi, zzdEta, zzdr, lldPhi, lldEta,lldr, jjdPhi, jjdEta, jjdr; 
 //OGL   float neutralEmEnergy, chargedEmEnergy, chargedHadronEnergy, energy;
 //OGL   float jminid, jmaxid;
 //OGL   float j0LooseID, j1LooseID;
@@ -152,17 +158,55 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
     const Candidate * zDauRefca8 = H.daughter(1);
     const pat::Jet & jca8 = dynamic_cast<const pat::Jet &>(*(zDauRefca8));
 
-//OGL     // compute helicity angles with unrefitted jet quantities
-//OGL     helicityAngles( Zll, Zjj );
-//OGL 
-//OGL     //    std::cout << "Helicity angles: "<<
-//OGL     //      costhetaNT1 <<" , "<< costhetaNT2 <<" , "<< costhetastarNT <<" , "<<
-//OGL     //      phiNT       <<" , "<< phiNT1      << std::endl;
-//OGL 
-//OGL     // dPhi, dEta, dr between H and Zs daughters
-//OGL     zzdPhi = fabs( deltaPhi(Zll->phi(), Zjj->phi()) ) ;
-//OGL     zzdEta = fabs( (Zll->eta() - Zjj->eta()) );
-//OGL     zzdr = deltaR(Zll->eta(), Zll->phi(), Zjj->eta(), Zjj->phi() );
+    // find the appropriate pruned jet.
+    // Due to the pruning they are not exactly identical, so we use Dr matching
+    long unsigned indexTmp=0;
+    int index = -1;
+    double dRmin=99.0;
+    for(pat::JetCollection::const_iterator pj = prunedH->begin();
+	pj != prunedH->end(); ++pj, ++indexTmp ){
+      
+      edm::Ptr<pat::Jet> pjTMPPtr( prunedH , indexTmp );
+      double dRtmp=deltaR(jca8,*pjTMPPtr);
+      if(dRtmp<dRmin && dRtmp<0.7 ){//matching failed if greater than jet radius
+	dRmin=dRtmp;
+	index=indexTmp;
+      }
+    }//end loop on pruned jet collection
+
+    //OLDstd::cout << index <<std::endl;
+    edm::Ptr<pat::Jet> prunedJet(prunedH,index);
+    
+    //OLDstd::cout<< prunedJet->mass()<<std::endl;
+    //OLDstd::cout<< prunedJet->numberOfDaughters()<<std::endl;
+    
+    if(prunedJet->mass()>5){  //IGNORE SUBSTRUCTURE FOR SINGLE SUBJET
+      // compute helicity angles with unrefitted jet quantities
+      helicityAngles( Zll, &(*prunedJet) );
+      
+      //OLDstd::cout << "Helicity angles: "<<
+      //OLDcosthetaNT1 <<" , "<< costhetaNT2 <<" , "<< costhetastarNT <<" , "<<
+      //OLDphiNT       <<" , "<< phiNT1      << std::endl;
+      
+      // dPhi, dEta, dr between H and Zs daughters
+      zzdPhi = fabs( deltaPhi(Zll->phi(), jca8.phi()) ) ;
+      zzdEta = fabs( (Zll->eta() - jca8.eta()) );
+      zzdr = deltaR(Zll->eta(), Zll->phi(), jca8.eta(), jca8.phi() );
+      
+      const Candidate * subjet1ref = prunedJet->daughter(0);
+      const pat::Jet & subjet1 = dynamic_cast<const pat::Jet &>(*(subjet1ref));
+      const Candidate * subjet2ref = prunedJet->daughter(1);
+      const pat::Jet & subjet2 = dynamic_cast<const pat::Jet &>(*(subjet2ref));
+      
+      //OLDstd::cout << "Subjet 1 btags: " << std::endl;
+      //OLDstd::vector<std::pair<std::string, float> > btaginfo = subjet1.getPairDiscri();
+      //OLDfor(std::vector<std::pair<std::string, float> >::const_iterator tagger = btaginfo.begin(); tagger!=btaginfo.end();tagger++)
+      //OLDstd::cout << tagger->first << " : " << tagger->second << std::endl;
+      //OLD}
+      //OLDelse{
+      //OLDstd::cout << "pruned mass smaller than 5GeV, don't look at substructure"<<std::endl;
+    }
+ 
 //OGL     
 //OGL     lldPhi = fabs(deltaPhi(zDauRefl0->phi(),zDauRefl1->phi() ) ) ;
 //OGL     lldEta = fabs(zDauRefl0->eta() - zDauRefl1->eta());
@@ -337,11 +381,11 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
 //OGL     h.addUserFloat("jmaxid",jmaxid);
 //OGL     h.addUserFloat("jet1LooseID",j0LooseID);
 //OGL     h.addUserFloat("jet2LooseID",j1LooseID);
-//OGL     h.addUserFloat("costhetaNT1",costhetaNT1);
-//OGL     h.addUserFloat("costhetaNT2",costhetaNT2);
-//OGL     h.addUserFloat("phiNT",phiNT);
-//OGL     h.addUserFloat("phiNT1",phiNT1);
-//OGL     h.addUserFloat("costhetastarNT",costhetastarNT);
+    h.addUserFloat("costhetaNT1",costhetaNT1);
+    h.addUserFloat("costhetaNT2",costhetaNT2);
+    h.addUserFloat("phiNT",phiNT);
+    h.addUserFloat("phiNT1",phiNT1);
+    h.addUserFloat("costhetastarNT",costhetastarNT);
 //OGL     h.addUserFloat("costhetaNT1Refit",costhetaNT1Refit);
 //OGL     h.addUserFloat("costhetaNT2Refit",costhetaNT2Refit);
 //OGL     h.addUserFloat("phiNTRefit",phiNTRefit);
@@ -397,31 +441,31 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
 //OGL   helyLD = ldSig / (ldSig + ldBkg);
 //OGL }
 
-//OGL void H2l2qmergedCandidateData::helicityAngles (const reco::Candidate *Zll, const reco::Candidate *Zjj) {
-//OGL   // prepare for helicity angles computation
-//OGL   costhetaNT1 = -8.80; costhetaNT2 = -8.80; costhetastarNT = -8.80;
-//OGL   phiNT       = -8.80; phiNT1      = -8.80;
-//OGL   TLorentzVector p4lept1(0.0,0.0,0.0,0.0);
-//OGL   TLorentzVector p4lept2(0.0,0.0,0.0,0.0);
-//OGL   TLorentzVector p4jet1(0.0,0.0,0.0,0.0);
-//OGL   TLorentzVector p4jet2(0.0,0.0,0.0,0.0);
-//OGL   //set as lepton #1 the negative one
-//OGL   int lM, lP;
-//OGL   if(Zll->daughter(0)->charge()<0.0) 
-//OGL     lM = 0;
-//OGL   else   
-//OGL     lM = 1;
-//OGL   lP = 1-lM;
-//OGL   
-//OGL   p4lept1.SetPxPyPzE(Zll->daughter(lM)->p4().x(),Zll->daughter(lM)->p4().y(),Zll->daughter(lM)->p4().z(),Zll->daughter(lM)->p4().e());
-//OGL   p4lept2.SetPxPyPzE(Zll->daughter(lP)->p4().x(),Zll->daughter(lP)->p4().y(),Zll->daughter(lP)->p4().z(),Zll->daughter(lP)->p4().e());
-//OGL   
-//OGL   p4jet1.SetPxPyPzE(Zjj->daughter(0)->p4().x(),Zjj->daughter(0)->p4().y(),Zjj->daughter(0)->p4().z(),Zjj->daughter(0)->p4().e());
-//OGL   p4jet2.SetPxPyPzE(Zjj->daughter(1)->p4().x(),Zjj->daughter(1)->p4().y(),Zjj->daughter(1)->p4().z(),Zjj->daughter(1)->p4().e());
-//OGL   //compute helicity angles
-//OGL   Helicity myAngles;
-//OGL   myAngles.calculateAngles(p4lept1, p4lept2, p4jet1, p4jet2, costhetaNT1, costhetaNT2, costhetastarNT, phiNT, phiNT1);
-//OGL }
+void H2l2qmergedCandidateData::helicityAngles (const reco::Candidate *Zll, const reco::Candidate *Zjj) {
+  // prepare for helicity angles computation
+  costhetaNT1 = -8.80; costhetaNT2 = -8.80; costhetastarNT = -8.80;
+  phiNT       = -8.80; phiNT1      = -8.80;
+  TLorentzVector p4lept1(0.0,0.0,0.0,0.0);
+  TLorentzVector p4lept2(0.0,0.0,0.0,0.0);
+  TLorentzVector p4jet1(0.0,0.0,0.0,0.0);
+  TLorentzVector p4jet2(0.0,0.0,0.0,0.0);
+  //set as lepton #1 the negative one
+  int lM, lP;
+  if(Zll->daughter(0)->charge()<0.0) 
+    lM = 0;
+  else   
+    lM = 1;
+  lP = 1-lM;
+   
+  p4lept1.SetPxPyPzE(Zll->daughter(lM)->p4().x(),Zll->daughter(lM)->p4().y(),Zll->daughter(lM)->p4().z(),Zll->daughter(lM)->p4().e());
+  p4lept2.SetPxPyPzE(Zll->daughter(lP)->p4().x(),Zll->daughter(lP)->p4().y(),Zll->daughter(lP)->p4().z(),Zll->daughter(lP)->p4().e());
+  
+  p4jet1.SetPxPyPzE(Zjj->daughter(0)->p4().x(),Zjj->daughter(0)->p4().y(),Zjj->daughter(0)->p4().z(),Zjj->daughter(0)->p4().e());
+  p4jet2.SetPxPyPzE(Zjj->daughter(1)->p4().x(),Zjj->daughter(1)->p4().y(),Zjj->daughter(1)->p4().z(),Zjj->daughter(1)->p4().e());
+  //compute helicity angles
+  Helicity myAngles;
+  myAngles.calculateAngles(p4lept1, p4lept2, p4jet1, p4jet2, costhetaNT1, costhetaNT2, costhetastarNT, phiNT, phiNT1);
+}
 
 
 //OGL void H2l2qmergedCandidateData::helicityAnglesRefit(const reco::Candidate *Zll, TLorentzVector p4jet1, TLorentzVector p4jet2) 

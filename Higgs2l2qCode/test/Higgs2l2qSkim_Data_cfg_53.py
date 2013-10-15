@@ -20,8 +20,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 ########### global tag ############################
 #from CMGTools.Common.Tools.getGlobalTag import getGlobalTag
 #process.GlobalTag.globaltag = cms.string(getGlobalTag(runOnMC))
-# global tag for 2012A/B/C/D Winter13 re-reco (= 22Jan2013 re-reco)  
-process.GlobalTag.globaltag = 'FT_53_V21_AN5::All'
+#Global tag for 2012A/B/C/D Winter13 re-reco (= 22Jan2013 re-reco)
+#
+process.GlobalTag.globaltag = 'FT_53_V21_AN6::All'
+#
+
 
 # The default Jet Probability calibration is good for 53x reprocessed Data from 22Jan2013
 

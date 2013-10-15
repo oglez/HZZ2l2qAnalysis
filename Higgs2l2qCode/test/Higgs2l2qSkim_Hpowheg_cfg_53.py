@@ -6,7 +6,7 @@ runOnMC = True
 
 # turn on when running on powheg signal MC (-> to produce line-shape weights)
 isPowhegSignal = True
-hMassHyp = "400"
+hMassHyp = "900"
 comEn = "8TeV"
 fileWeight = "MMozer/powhegweight/data/mZZ_Higgs"+hMassHyp+"_"+comEn+"_Lineshape+Interference.txt"
 
@@ -60,7 +60,7 @@ process.powWeightProducer = tongguangweights600.clone(
 ### INPUT COLLECTIONS ##########
 
 process.source.fileNames = [
-    'file:/data3/scratch/cms/mc/Summer12_DR53X/GluGluToHToZZTo2L2Q_M-400/005A2EAA-99FA-E111-B81E-0018F3D095F8.root'
+    'file:3667E59B-0E0D-E211-9801-001E67397094.root'
 ]
 
 ### DEFINITION OF THE PFBRECO+PAT SEQUENCES ##########
@@ -267,7 +267,7 @@ process.mvaeIdSequence = cms.Sequence(
 #import ElectroWeakAnalysis.WENu.simpleCutBasedElectronIDSpring10_cfi as vbtfid
 # Switch to the official Electron VBTF Selection for 2011 Data (relax H/E cut in the Endcap):
 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/VbtfEleID2011
-import HiggsAnalysis.Higgs2l2b.simpleCutBasedElectronIDSummer11_cfi as vbtfid
+import HZZ2l2qAnalysis.Higgs2l2qCode.simpleCutBasedElectronIDSummer11_cfi as vbtfid
 process.eidVBTFRel95 = vbtfid.simpleCutBasedElectronID.clone( electronQuality = '95relIso' )
 process.eidVBTFRel80 = vbtfid.simpleCutBasedElectronID.clone( electronQuality = '80relIso' )
 process.eidVBTFCom95 = vbtfid.simpleCutBasedElectronID.clone( electronQuality = '95cIso'   )

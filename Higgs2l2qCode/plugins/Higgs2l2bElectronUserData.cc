@@ -162,8 +162,20 @@ void Higgs2l2bElectronUserData::produce( Event & evt, const EventSetup & ) {
 
     //    cout << "CUT ID CODE = " << cutIDCode << endl;
     
-    el.addUserFloat("passTriggerTight", float(passTriggerTight));
-    el.addUserFloat("cutIDCode", float(cutIDCode));
+    //el.addUserFloat("passTriggerTight", float(passTriggerTight));
+    el.addUserInt("passTriggerTight", passTriggerTight);
+    //el.addUserFloat("cutIDCode", float(cutIDCode));
+    el.addUserInt("cutIDCode",cutIDCode);
+
+    int isIsolated=0;  // Marks passing ID and isolation!
+    if (cutIDCode>1 && passTriggerTight>0) isIsolated=1;
+    el.addUserInt("isIsolated",isIsolated);
+
+    // Some feedback for testing:
+
+    //cout<<"ELECTRON: "<<cutIDCode<<" "<<el.pt()<<" "<<endl;
+
+
     
   }
 

@@ -1,5 +1,5 @@
- 
- ## import skeleton process
+
+## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # turn on when running on MC
@@ -16,7 +16,7 @@ else:#Data
 
 ############ general options ####################
 process.options.wantSummary = True
-process.maxEvents.input = 10000
+process.maxEvents.input = 4998
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 ########### global tag ############################
 #from CMGTools.Common.Tools.getGlobalTag import getGlobalTag
@@ -56,6 +56,10 @@ process.source.fileNames = [
 #    'file:/data3/scratch/cms/mc/Summer12_DR53X/DYJetsToLL_M-50/FEF4E41A-46D4-E111-9594-0025B3E06424.root'
 #    'file:/data3/scratch/cms/mc/Summer12/GluGluToHToZZTo2L2Q_M-700_8TeV/FE073BF1-CDB7-E111-8866-E0CB4E4408BE.root'
     'file:/data1/oglez/spool/Zjets_MADGRAPH_v1_AOD532/FE414F4B-F6D2-E111-A4E9-003048674048.root'
+#
+#    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/A6B3E111-8602-E211-8B03-90E6BA442F12.root",
+#    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/26A46B19-8E02-E211-83F1-E0CB4E1A117D.root",
+#    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/48614CD2-7402-E211-88ED-485B39800BF3.root"
 ]
 
 ### DEFINITION OF THE PFBRECO+PAT SEQUENCES ##########
@@ -158,90 +162,22 @@ getattr(process,"patJets"+postfixAK5).embedPFCandidates = True
 getattr(process,"patJets"+postfixAK5).addGenPartonMatch = False
 getattr(process,"patJets"+postfixAK5).addGenJetMatch = False
 
+# Processing the jet configuration
 
-##############################################################
-#add user variables to PAT-jets 
-#process.qglAK5PF   = cms.EDProducer(
-#    "QuarkGluonTagger",
-#    jets     = cms.InputTag("selectedPatJetsAK5"),
-#    rho      = cms.InputTag("kt6PFJetsForIso:rho"),
-#    jec      = cms.string('ak5PFL1FastL2L3'),
-#    isPatJet = cms.bool(True),
-#    )
+process.load('HZZ2l2qAnalysis.Higgs2l2qCode.HZZ2l2qJetConfiguration_cfi')
+#import HZZ2l2qAnalysis.Higgs2l2qCode.HZZ2l2qJetConfiguration_cfi as process
 
-process.customPFJetsNoPUSub = cms.EDProducer(
-    'PFJetUserData',
-    JetInputCollection=cms.untracked.InputTag("selectedPatJetsAK5"),
-#    is2012Data=cms.untracked.bool(True),
-#    qgMap=cms.untracked.InputTag("qglAK5PF"),
-    Verbosity=cms.untracked.bool(False)
-    )
-
-#from  CMGTools.External.pujetidsequence_cff import puJetId, puJetMva
-#process.puJetIdAK5 = puJetId.clone( jets = 'customPFJetsNoPUSub')
-#process.puJetMvaAK5= puJetMva.clone(
-#    jetids = cms.InputTag("puJetIdAK5"),
-#    jets = 'customPFJetsNoPUSub',
-#    )
-#
-#process.puJetIdSequenceAK5 = cms.Sequence(process.puJetIdAK5*process.puJetMvaAK5)
-
-# central jets for filtering and Z->jj candidates
-
-process.customPFJetsNoPUSubCentral = cms.EDFilter(
-    "PATJetSelector",
-    src = cms.InputTag("customPFJetsNoPUSub"),
-    cut = cms.string("abs(eta) < 2.4")
-    )
+# Seleting jets:
+process.selectedPatJetsAK5.cut = cms.string('pt > 25.0')
 
 ############## "Classic" PAT Muons and Electrons ########################
-# (made from all reco muons, and all gsf electrons, respectively)
-process.patMuons.embedTcMETMuonCorrs = False
-process.patMuons.embedCaloMETMuonCorrs = False
-process.patMuons.embedTrack = True
 
-process.patElectrons.embedTrack = True
-process.patElectrons.pfElectronSource = 'particleFlow'
+#process.load('HZZ2l2qAnalysis.Higgs2l2qCode.HZZ2l2qMuonConfiguration_cfi')
+from HZZ2l2qAnalysis.Higgs2l2qCode.HZZ2l2qMuonConfiguration_cfi import setupPatMuons
+setupPatMuons(process)
 
-# use PFIsolation
-process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons', 'PFIso')
-process.muIsoSequence = setupPFMuonIso(process, 'muons', 'PFIso')
-adaptPFIsoMuons( process, applyPostfix(process,"patMuons",""), 'PFIso')
-adaptPFIsoElectrons( process, applyPostfix(process,"patElectrons",""), 'PFIso')
-
-
-# setup recommended 0.3 cone for electron PF isolation
-#process.pfIsolatedElectrons.isolationValueMapsCharged = cms.VInputTag(cms.InputTag("elPFIsoValueCharged03PFIdPFIso"))
-#process.pfIsolatedElectrons.deltaBetaIsolationValueMap = cms.InputTag("elPFIsoValuePU03PFIdPFIso")
-#process.pfIsolatedElectrons.isolationValueMapsNeutral = cms.VInputTag(cms.InputTag("elPFIsoValueNeutral03PFIdPFIso"), cms.InputTag("elPFIsoValueGamma03PFIdPFIso"))
-process.patElectrons.isolationValues = cms.PSet(
-    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFIdPFIso"),
-    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFIdPFIso"),
-    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFIdPFIso"),
-    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFIdPFIso"),
-    pfPhotons = cms.InputTag("elPFIsoValueGamma03PFIdPFIso")
-    )
-process.patElectrons.isolationValuesNoPFId = cms.PSet(
-    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03NoPFIdPFIso"),
-    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03NoPFIdPFIso"),
-    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03NoPFIdPFIso"),
-    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03NoPFIdPFIso"),
-    pfPhotons = cms.InputTag("elPFIsoValueGamma03NoPFIdPFIso")
-    )
-
-
-process.stdMuonSeq = cms.Sequence(
-    process.pfParticleSelectionSequence +
-    process.muIsoSequence +
-    process.makePatMuons +
-    process.selectedPatMuons
-    )
-process.stdElectronSeq = cms.Sequence(
-    process.pfParticleSelectionSequence +
-    process.eleIsoSequence +
-    process.makePatElectrons +
-    process.selectedPatElectrons
-    )
+from HZZ2l2qAnalysis.Higgs2l2qCode.HZZ2l2qElectronConfiguration_cfi import setupPatElectrons
+setupPatElectrons(process)
 
 #if not runOnMC:
 process.stdMuonSeq.remove( process.muonMatch )
@@ -251,217 +187,24 @@ process.patElectrons.addGenMatch = False
 process.patMuons.embedGenMatch = False
 process.patElectrons.embedGenMatch = False
 
-# Modules for Electron ID
-# MVA Electron ID
-process.load("EGamma.EGammaAnalysisTools.electronIdMVAProducer_cfi")
-process.mvaeIdSequence = cms.Sequence(
-    process.mvaTrigV0 +
-    process.mvaNonTrigV0
-)
-# ElectronID in the VBTF prescription
-#import ElectroWeakAnalysis.WENu.simpleCutBasedElectronIDSpring10_cfi as vbtfid
-# Switch to the official Electron VBTF Selection for 2011 Data (relax H/E cut in the Endcap):
-# https://twiki.cern.ch/twiki/bin/viewauth/CMS/VbtfEleID2011
-import HZZ2l2qAnalysis.Higgs2l2qCode.simpleCutBasedElectronIDSummer11_cfi as vbtfid
-process.eidVBTFRel95 = vbtfid.simpleCutBasedElectronID.clone( electronQuality = '95relIso' )
-process.eidVBTFRel80 = vbtfid.simpleCutBasedElectronID.clone( electronQuality = '80relIso' )
-process.eidVBTFCom95 = vbtfid.simpleCutBasedElectronID.clone( electronQuality = '95cIso'   )
-process.eidVBTFCom80 = vbtfid.simpleCutBasedElectronID.clone( electronQuality = '80cIso'   )
-        
-process.vbtfeIdSequence = cms.Sequence(
-        process.eidVBTFRel95 +
-        process.eidVBTFRel80 +
-        process.eidVBTFCom95 +
-        process.eidVBTFCom80
-)
-
-process.eidSequence = cms.Sequence(
-    process.mvaeIdSequence +
-    process.vbtfeIdSequence
-)
-
-process.patElectrons.electronIDSources = cms.PSet(
-        eidVBTFRel95 = cms.InputTag("eidVBTFRel95"),
-        eidVBTFRel80 = cms.InputTag("eidVBTFRel80"),
-        eidVBTFCom95 = cms.InputTag("eidVBTFCom95"),
-        eidVBTFCom80 = cms.InputTag("eidVBTFCom80"),
-        #MVA 
-        mvaTrigV0 = cms.InputTag("mvaTrigV0"),
-        mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0")
-)
-
-process.stdLeptonSequence = cms.Sequence(
-    process.stdMuonSeq +
-    process.eidSequence +
-    process.stdElectronSeq 
-    )
-
-# Classic Electrons with UserData
-
-process.userDataSelectedElectrons = cms.EDProducer(
-    "Higgs2l2bElectronUserData",
-    src = cms.InputTag("selectedPatElectrons"),
-    rho = cms.InputTag("kt6PFJets:rho"),
-    primaryVertices=cms.InputTag("offlinePrimaryVertices")
-)
-
-# ID+Isolated electrons: select electrons passing LOOSE
-process.selectedIsoElectrons = cms.EDFilter(
-    "PATElectronSelector",
-    src = cms.InputTag("userDataSelectedElectrons"),
-    cut = cms.string("(userFloat('cutIDCode') > 1) && (userFloat('passTriggerTight') > 0)")
-#    src = cms.InputTag("selectedIDElectrons"),
-#    cut = cms.string("electronID('eidVBTFCom95') == 7")
-)
-
-# Classic Muons with UserData
-process.userDataSelectedMuons = cms.EDProducer(
-    "Higgs2l2bMuonUserData",
-    src = cms.InputTag("selectedPatMuons"),
-    primaryVertices=cms.InputTag("offlinePrimaryVertices")
-)
-
-# ID-selected muons
-process.selectedIDMuons = cms.EDFilter(
-    "PATMuonSelector",
-    src = cms.InputTag("userDataSelectedMuons"),
-    cut = cms.string(
-            "isGlobalMuon && isTrackerMuon && isPFMuon && globalTrack().normalizedChi2 < 10 && " +
-            "globalTrack().hitPattern().numberOfValidMuonHits > 0 && "              +
-            "numberOfMatchedStations > 1 && abs( userFloat('dzVtx') ) < 0.5 && "    +
-            "innerTrack().hitPattern().numberOfValidPixelHits > 0 && "              +
-            "track().hitPattern().trackerLayersWithMeasurement > 5 && abs(dB) < 0.2" )
-)
-
-# Isolated muons: standard isolation
-process.selectedIsoMuons = cms.EDFilter(
-    "PATMuonSelector",
-    src = cms.InputTag("selectedIDMuons"),
-#    cut = cms.string("trackIso + caloIso < 0.15 * pt")
-# using DeltaBeta correction
-    cut = cms.string("( max(0., (neutralHadronIso + photonIso - 0.5*puChargedHadronIso) ) + chargedHadronIso) < 0.12 * pt")
-)
+# #OLD process.stdLeptonSequence = cms.Sequence(
+# #OLD     process.stdMuonSeq +
+# #OLD # #OBSOLETE    process.eidSequence +
+# #OLD     process.stdElectronSeq 
+# #OLD     )
 
 process.userDataStandardLeptonSequence = cms.Sequence(
+    process.stdMuonSeq *
+    # #OBSOLETE    process.eidSequence *
+    process.stdElectronSeq *
+
     process.userDataSelectedMuons *
     process.userDataSelectedElectrons *
     process.selectedIDMuons *
-#    process.selectedIDElectrons *
+    process.selectedIDElectrons *
     process.selectedIsoMuons *
     process.selectedIsoElectrons 
     )
-
-
-# Jet cleaning for patJets
-process.cleanPatJetsNoPUIsoLept = cms.EDProducer(
-    "PATJetCleaner",
-    src = cms.InputTag("customPFJetsNoPUSubCentral"),
-    preselection = cms.string(''),
-    checkOverlaps = cms.PSet(
-    muons = cms.PSet(
-    src = cms.InputTag("selectedIsoMuons"),
-    algorithm = cms.string("byDeltaR"),
-    preselection = cms.string(""),
-    deltaR = cms.double(0.5),
-    checkRecoComponents = cms.bool(False),
-    pairCut = cms.string(""),
-    requireNoOverlaps = cms.bool(True),
-    ),
-    electrons = cms.PSet(
-    src = cms.InputTag("selectedIsoElectrons"),
-    algorithm = cms.string("byDeltaR"),
-    preselection = cms.string(""),
-    deltaR = cms.double(0.5),
-    checkRecoComponents = cms.bool(False),
-    pairCut = cms.string(""),
-    requireNoOverlaps = cms.bool(True),
-    )
-    ),
-    finalCut = cms.string('')
-    )
-
-#---------------- For Merged Jets, added by Oscar.
-
-jetSubstructuresEventContent = cms.untracked.vstring()
-jetSubstructuresSequence = cms.Sequence()
-
-### Make correct pfNoPileUp ###########
-from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
-process.goodOfflinePrimaryVerticesForSubJets = goodOfflinePrimaryVertices.clone()
-
-from CommonTools.ParticleFlow.pfPileUp_cfi  import *
-from CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi import *
-
-process.pfPileUpForSubJets = pfPileUp.clone(
-        checkClosestZVertex = False,
-            PFCandidates = 'particleFlow',
-            Vertices = 'goodOfflinePrimaryVerticesForSubJets'
-            )
-process.pfNoPileUpForSubJets = pfNoPileUp.clone(
-        topCollection = 'pfPileUpForSubJets',
-            bottomCollection = 'particleFlow'
-            )
-
-jetSubstructuresSequence += process.goodOfflinePrimaryVerticesForSubJets
-jetSubstructuresSequence += process.pfPileUpForSubJets
-jetSubstructuresSequence += process.pfNoPileUpForSubJets
-
-pfNoPileUpSrc = 'pfNoPileUpForSubJets'
-
-#### Adding CA8 jets and CA8 pruned jets
-process.load("ExoDiBosonResonances.PATtupleProduction.PAT_ca8jets_cff")
-process.ca8PFJetsCHS.src = pfNoPileUpSrc
-process.ca8PFJetsCHSpruned.src = pfNoPileUpSrc
-jetSubstructuresSequence += process.PATCMGJetSequenceCA8CHS
-jetSubstructuresSequence += process.PATCMGJetSequenceCA8CHSpruned
-jetSubstructuresEventContent+=['keep *_ca8PFJetsCHSpruned_SubJets_*']
-jetSubstructuresEventContent+=['keep *_ca8GenJetsNoNu_*_*']
-
-## jetSubstructuresEventContent+=['keep patJets_selectedPatJetsCA8CHSwithNsub_*_*']
-
-process.selectedPatJetsCA8CHS.cut = cms.string('pt > 25.0 && abs(eta) < 2.4')
-
-jetSubstructuresSequence += process.PATCMGJetSequenceCA8CHS
-jetSubstructuresSequence += process.PATCMGJetSequenceCA8CHSpruned
-jetSubstructuresSequence += process.selectedPatJetsCA8CHSwithNsub
-jetSubstructuresSequence += process.selectedPatJetsCA8CHSwithQjets
-# OLD jetSubstructuresSequence += process.selectedPatJetsCA8CHSwithNsub
-
-#### Jet cleaning for CA8 Jets
-process.cleanCA8JetsNoPUIsoLept = cms.EDProducer(
-        "PATJetCleaner",
-        #src = cms.InputTag("selectedPatJetsCA8CHS"),
-        src = cms.InputTag("selectedPatJetsCA8CHSwithQjets"),
-        preselection = cms.string(''),
-        checkOverlaps = cms.PSet(
-                muons = cms.PSet(
-                src = cms.InputTag("selectedIsoMuons"),
-                algorithm = cms.string("byDeltaR"),
-                preselection = cms.string(""),
-                #deltaR = cms.double(0.5),
-                deltaR = cms.double(0.7),
-                checkRecoComponents = cms.bool(False),
-                pairCut = cms.string(""),
-                requireNoOverlaps = cms.bool(True),
-                ),
-                electrons = cms.PSet(
-                src = cms.InputTag("selectedIsoElectrons"),
-                algorithm = cms.string("byDeltaR"),
-                preselection = cms.string(""),
-                #deltaR = cms.double(0.5),
-                deltaR = cms.double(0.7),
-                checkRecoComponents = cms.bool(False),
-                pairCut = cms.string(""),
-                requireNoOverlaps = cms.bool(True),
-                )
-                ),
-        finalCut = cms.string('')
-        )
-
-jetSubstructuresEventContent+=['keep *_cleanCA8JetsNoPUIsoLept_*_*']
-jetSubstructuresSequence += process.cleanCA8JetsNoPUIsoLept
-
-# ---------------- Common stuff ---------------
 
 ### PATH DEFINITION #############################################
 
@@ -483,195 +226,26 @@ process.p += getattr(process,"patPF2PATSequence"+postfixAK5)
 #process.p += process.qglAK5PF 
 process.p += process.customPFJetsNoPUSub
 #process.p += process.puJetIdSequenceAK5
-process.p += process.customPFJetsNoPUSubCentral
+# #OLD process.p += process.customPFJetsNoPUSubCentral
 
-process.p += process.stdLeptonSequence
+# #OLD process.p += process.stdLeptonSequence
 
 process.p += process.userDataStandardLeptonSequence
 process.p += process.cleanPatJetsNoPUIsoLept
 
-# Select leptons
-process.selectedPatMuons.cut = (
-    "pt > 10 && abs(eta) < 2.4"
-        )
+process.p += process.jetSubstructuresSequence
 
-process.selectedPatElectrons.cut = (
-    "pt > 10.0 && abs(eta) < 2.5"
-    )
-# Select jets
-process.selectedPatJetsAK5.cut = cms.string('pt > 25.0')
+process.p.replace(process.selectedPatJetsAK5,process.selectedPatJetsAK5*process.puJetIdSqeuence)
 
-process.p += jetSubstructuresSequence
+# Combinatorial process:
 
+process.load('HZZ2l2qAnalysis.Higgs2l2qCode.HZZ2l2qCandidateCreation_cfi')
 
-################# COMBINATORIAL ANALYSIS ###########################
-
-process.zee = cms.EDProducer("CandViewShallowCloneCombiner",
-                                 checkCharge = cms.bool(False),
-                                 cut = cms.string('mass > 20 '),
-                                 decay = cms.string("userDataSelectedElectrons@+ userDataSelectedElectrons@-")
-                             )
-
-process.zmm = cms.EDProducer("CandViewShallowCloneCombiner",
-                                 checkCharge = cms.bool(False),
-                                 cut = cms.string('mass > 20 '),
-                                 decay = cms.string("userDataSelectedMuons@+ userDataSelectedMuons@-")
-                             )
-
-process.zem = cms.EDProducer("CandViewShallowCloneCombiner",
-                                 checkCharge = cms.bool(False),
-                                 cut = cms.string('mass > 20 '),
-                                 decay = cms.string("userDataSelectedElectrons@+ userDataSelectedMuons@-")
-                             )
-
-process.zjj = cms.EDProducer("CandViewShallowCloneCombiner",
-                             checkCharge = cms.bool(False),
-                             checkOverlap = cms.bool(False),
-                             cut = cms.string(''),
-                             decay = cms.string("cleanPatJetsNoPUIsoLept cleanPatJetsNoPUIsoLept")
-)
-
-process.hzzeejjBaseColl = cms.EDProducer("CandViewCombiner",
-                                             checkCharge = cms.bool(False),
-                                             cut = cms.string(''),
-                                             decay = cms.string("zee zjj")
+# Oscar: a module for checks
+process.debugCandidates = cms.EDAnalyzer("Higgs2l2qDebugModule",
+                                         collections = cms.vstring("hzzeejjBaseColl","hzzmmjjBaseColl","hzzemjjBaseColl",
+                                                                   "hzzee1jBaseColl","hzzmm1jBaseColl","hzzem1jBaseColl")
                                          )
-
-process.hzzmmjjBaseColl = cms.EDProducer("CandViewCombiner",
-                                             checkCharge = cms.bool(False),
-                                             cut = cms.string(''),
-                                             decay = cms.string("zmm zjj")
-                                         )
-
-process.hzzemjjBaseColl = cms.EDProducer("CandViewCombiner",
-                                             checkCharge = cms.bool(False),
-                                             cut = cms.string(''),
-                                             decay = cms.string("zem zjj")
-                                         )
-
-process.hzzeejj = cms.EDProducer("H2l2qCandidateData",
-                                     higgs = cms.InputTag("hzzeejjBaseColl"),
-                                     gensTag = cms.InputTag("genParticles"),
-                                     PFCandidates = cms.InputTag("particleFlow"),
-                                     primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-                                     dzCut = cms.double(0.1)
-                                 )
-
-process.hzzmmjj = cms.EDProducer("H2l2qCandidateData",
-                                     higgs = cms.InputTag("hzzmmjjBaseColl"),
-                                     gensTag = cms.InputTag("genParticles"),
-                                     PFCandidates = cms.InputTag("particleFlow"),
-                                     primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-                                     dzCut = cms.double(0.1)
-                                     )
-
-process.hzzemjj = cms.EDProducer("H2l2qCandidateData",
-                                     higgs = cms.InputTag("hzzemjjBaseColl"),
-                                     gensTag = cms.InputTag("genParticles"),
-                                     PFCandidates = cms.InputTag("particleFlow"),
-                                     primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-                                     dzCut = cms.double(0.1)
-                                     )
-
-# #OSCAR process.combinatorialSequence = cms.Sequence(
-# #OSCAR     process.zee +
-# #OSCAR     process.zmm +
-# #OSCAR     process.zem +
-# #OSCAR     process.zjj +
-# #OSCAR     process.hzzeejjBaseColl +
-# #OSCAR     process.hzzmmjjBaseColl +
-# #OSCAR     process.hzzemjjBaseColl +
-# #OSCAR     process.hzzeejj +
-# #OSCAR     process.hzzmmjj +
-# #OSCAR     process.hzzemjj
-# #OSCAR )
-# #OSCAR 
-# #OSCAR process.p += process.combinatorialSequence
-
-# #OSCAR #if runOnMC and isPowhegSignal:
-# #OSCAR #    process.p += process.powWeightProducer
-# #OSCAR 
-# #OSCAR process.p += getattr(process,"postPathCounter") 
-
-# We need to process the candidates for the merged jets
-
-process.hzzee1jBaseColl = cms.EDProducer("CandViewCombiner",
-                                         checkCharge = cms.bool(False),
-                                         cut = cms.string(''),
-                                         decay = cms.string("zee cleanCA8JetsNoPUIsoLept")
-                                         )
-
-process.hzzmm1jBaseColl = cms.EDProducer("CandViewCombiner",
-                                         checkCharge = cms.bool(False),
-                                         cut = cms.string(''),
-                                         decay = cms.string("zmm cleanCA8JetsNoPUIsoLept")
-                                         )
-process.hzzem1jBaseColl = cms.EDProducer("CandViewCombiner",
-                                         checkCharge = cms.bool(False),
-                                         cut = cms.string(''),
-                                         decay = cms.string("zem cleanCA8JetsNoPUIsoLept")
-                                         )
-
-process.hzzee1j = cms.EDProducer("H2l2qmergedCandidateData",
-                                 higgs = cms.InputTag("hzzee1jBaseColl")
-                                 #,gensTag = cms.InputTag("genParticles"),
-                                 #,PFCandidates = cms.InputTag("particleFlow"),
-                                 #,primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-                                 #,dzCut = cms.double(0.1)
-                                 )
-
-process.hzzmm1j = cms.EDProducer("H2l2qmergedCandidateData",
-                                 higgs = cms.InputTag("hzzmm1jBaseColl")
-                                 #,gensTag = cms.InputTag("genParticles"),
-                                 #,PFCandidates = cms.InputTag("particleFlow"),
-                                 #,primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-                                 #,dzCut = cms.double(0.1)
-                                 )
-
-process.hzzem1j = cms.EDProducer("H2l2qmergedCandidateData",
-                                 higgs = cms.InputTag("hzzem1jBaseColl")
-                                 #,gensTag = cms.InputTag("genParticles"),
-                                 #,PFCandidates = cms.InputTag("particleFlow"),
-                                 #,primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-                                 #,dzCut = cms.double(0.1)
-                                 )
-
-# Setup for a basic filtering
-process.zll = cms.EDProducer("CandViewMerger",
-                             src = cms.VInputTag("zee", "zmm", "zem")
-)
-
-process.zllFilter = cms.EDFilter("CandViewCountFilter",
-                                 src = cms.InputTag("zll"),
-                                 minNumber = cms.uint32(1)
-                                 )
-
-# Oscar modified the requirements to make them a bit cleaner: not a Z(ll)+2 jets but one
-# Higgs candidate
-
-process.allhcand = cms.EDProducer("CandViewMerger",
-                                  src = cms.VInputTag("hzzeejjBaseColl","hzzmmjjBaseColl","hzzemjjBaseColl",
-                                                      "hzzee1jBaseColl","hzzmm1jBaseColl","hzzem1jBaseColl")
-                                  )
-
-process.candFilter = cms.EDFilter("CandViewCountFilter",
-                                  src = cms.InputTag("allhcand"),
-                                  minNumber = cms.uint32(1)
-                                  )
-
-# process.jetFilterNoPUSub = cms.EDFilter("CandViewCountFilter",
-#                                         src = cms.InputTag("customPFJetsNoPUSubCentral"),
-#                                         minNumber = cms.uint32(2),
-#                                         filter = cms.bool(True)
-#                                         )
-
-# #OSCAR process.filterPath1= cms.Path(
-# #OSCAR     process.zll *
-# #OSCAR     process.zllFilter *
-# #OSCAR     #OSCAR process.jetFilterNoPUSub
-# #OSCAR     process.allhcand *
-# #OSCAR     process.candFilter
-# #OSCAR     )
 
 # Oscar: New combinatorial sequence that is much more efficient:
 
@@ -695,6 +269,7 @@ process.combinatorialSequence = cms.Sequence(
         process.hzzem1jBaseColl *
 
         process.allhcand *
+        #process.debugCandidates *
         process.candFilter *
 
         process.hzzeejj *
@@ -711,22 +286,6 @@ process.p += getattr(process,"postPathCounter")
 
 # event cleaning (in tagging mode, no event rejected)
 process.load('CMGTools.Common.PAT.addFilterPaths_cff')
-
-# process.fullPath = cms.Schedule(
-#     process.p,
-# # #OSCAR    process.filterPath1,
-# #    process.filterPath2,
-#     process.EcalDeadCellTriggerPrimitiveFilterPath,
-#     process.hcalLaserEventFilterPath,
-#     process.trackingFailureFilterPath,
-#     process.CSCTightHaloFilterPath,
-#     process.HBHENoiseFilterPath,
-#     process.eeBadScFilterPath,
-#     process.primaryVertexFilterPath,
-#     process.noscrapingFilterPath,
-#     process.ecalLaserFilterPath,
-#     process.trkPOGFiltersPath
-#     )
 
 del process.EcalDeadCellTriggerPrimitiveFilterPath
 process.p += process.EcalDeadCellTriggerPrimitiveFilter
@@ -769,33 +328,31 @@ if runOnMC:
 
 
 process.out = cms.OutputModule("PoolOutputModule",
-                 fileName = cms.untracked.string('h2l2qSkimData.root'),
-                 SelectEvents = cms.untracked.PSet(
-                     SelectEvents = cms.vstring('p')
-# #OSCAR                         'filterPath1')#,
-# #OSCAR #                        'filterPath2')
-                     ),
-                  outputCommands =  cms.untracked.vstring(
-                  'drop *_*_*_*',
-                  ),
-)
+                               fileName = cms.untracked.string('h2l2qSkimData.root'),
+                               SelectEvents = cms.untracked.PSet(
+                                   SelectEvents = cms.vstring('p')
+                                   ),
+                               outputCommands =  cms.untracked.vstring(
+                                   'drop *_*_*_*',
+                                   )
+                               )
 
 process.out.dropMetaData = cms.untracked.string("DROPPED")
 
 process.out.outputCommands.extend([
-    'keep *_userDataSelectedElectrons_*_PAT',
-    'keep *_userDataSelectedMuons_*_PAT',
+    'keep *_selectedIDElectrons_*_PAT',
+    'keep *_selectedIDMuons_*_PAT',
 #    'keep *_customPFJets_*_PAT',
     'keep *_selectedPatJetsAK5_pfCandidates_PAT',
-    'keep *_customPFJetsNoPUSub_*_PAT',
+# #OLD<    'keep *_customPFJetsNoPUSub_*_PAT',
     'keep *_cleanPatJetsNoPUIsoLept_*_PAT',
     # rho variables
     'keep *_*_rho_PAT',
     'keep *_kt6PFJetsCentralNeutral_rho_*',
     'keep *_kt6PFJets*_rho_*',
     # PU jetID maps
-#    "keep *_puJetId*_*_*", # input variables
-#    "keep *_puJetMva*_*_*", # final MVAs and working point flags
+    "keep *_puJetId*_*_*", # input variables
+    "keep *_puJetMva*_*_*", # final MVAs and working point flags
     # ll, jj, lljj candidates
     'keep *_zee_*_PAT',
     'keep *_zmm_*_PAT',
@@ -838,15 +395,18 @@ process.out.outputCommands.extend([
     'keep edmTriggerResults_TriggerResults_*_HLT'])
 
 # additional products for event cleaning
-process.out.outputCommands.extend([
-    'keep *_TriggerResults_*_PAT',
-    ])
-
+process.out.outputCommands.extend(['keep *_TriggerResults_*_PAT'])
 process.out.outputCommands.extend(['keep edmMergeableCounter_*_*_*'])
 
 # Adding the CA8 information
-process.out.outputCommands.extend(jetSubstructuresEventContent)
+# #OLD process.out.outputCommands.extend(process.jetSubstructuresEventContent)
+process.out.outputCommands.extend(['keep *_ca8PFJetsCHSpruned_SubJets_*'])
+process.out.outputCommands.extend(['keep *_ca8GenJetsNoNu_*_*'])
+process.out.outputCommands.extend(['keep *_cleanCA8JetsNoPUIsoLept_*_*'])
 
+process.out.outputCommands.extend(['keep *_btaggedPatJetsCA8CHSpruned_*_*'])
+process.out.outputCommands.extend(['keep *_patJetsCA8CHSprunedSubjets_*_*'])
+
+#
 process.outPath = cms.EndPath(process.out)
-
-#  LocalWords:  hzzeejjBaseColl
+#
