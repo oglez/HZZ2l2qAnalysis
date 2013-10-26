@@ -12,7 +12,7 @@ zee = cms.EDProducer("CandViewShallowCloneCombiner",
                      checkCharge = cms.bool(False),
                      cut = cms.string('mass > 20 '),
                      #decay = cms.string("userDataSelectedElectrons@+ userDataSelectedElectrons@-")
-                     decay = cms.string("selectedIDElectrons@+ selectedIDElectrons@-")
+                     decay = cms.string("selectedPatElectrons@+ selectedPatElectrons@-")
                      )
 
 zmm = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -26,7 +26,7 @@ zem = cms.EDProducer("CandViewShallowCloneCombiner",
                      checkCharge = cms.bool(False),
                      cut = cms.string('mass > 20 '),
                      #                                 decay = cms.string("userDataSelectedElectrons@+ userDataSelectedMuons@-")
-                     decay = cms.string("selectedIDElectrons@+ selectedIDMuons@-")
+                     decay = cms.string("selectedPatElectrons@+ selectedIDMuons@-")
                      #Para checks... creo que incluidos.                             decay = cms.string("selectedIDElectrons@- selectedIDMuons@+")
                      )
 
@@ -56,9 +56,15 @@ hzzemjjBaseColl = cms.EDProducer("CandViewCombiner",
                                  decay = cms.string("zem zjj")
                                  )
 
+import HZZ2l2qAnalysis.Higgs2l2qCode.Hzz2l2qSetup_cfi as Hzz2l2qSetup
+    
+usingGenTag = 'NotAvailable'
+if Hzz2l2qSetup.runOnMC:
+    usingGenTag = 'genParticles'
+    
 hzzeejj = cms.EDProducer("H2l2qCandidateData",
                          higgs = cms.InputTag("hzzeejjBaseColl"),
-                         gensTag = cms.InputTag("genParticles"),
+                         gensTag = cms.InputTag(usingGenTag),
                          PFCandidates = cms.InputTag("particleFlow"),
                          primaryVertices = cms.InputTag("offlinePrimaryVertices"),
                          dzCut = cms.double(0.1)
@@ -66,15 +72,15 @@ hzzeejj = cms.EDProducer("H2l2qCandidateData",
 
 hzzmmjj = cms.EDProducer("H2l2qCandidateData",
                          higgs = cms.InputTag("hzzmmjjBaseColl"),
-                         gensTag = cms.InputTag("genParticles"),
-                        PFCandidates = cms.InputTag("particleFlow"),
+                         gensTag = cms.InputTag(usingGenTag),
+                         PFCandidates = cms.InputTag("particleFlow"),
                          primaryVertices = cms.InputTag("offlinePrimaryVertices"),
                          dzCut = cms.double(0.1)
                          )
 
 hzzemjj = cms.EDProducer("H2l2qCandidateData",
                          higgs = cms.InputTag("hzzemjjBaseColl"),
-                         gensTag = cms.InputTag("genParticles"),
+                         gensTag = cms.InputTag(usingGenTag),
                          PFCandidates = cms.InputTag("particleFlow"),
                          primaryVertices = cms.InputTag("offlinePrimaryVertices"),
                          dzCut = cms.double(0.1)
@@ -101,7 +107,7 @@ hzzem1jBaseColl = cms.EDProducer("CandViewCombiner",
 hzzee1j = cms.EDProducer("H2l2qmergedCandidateData",
                          higgs = cms.InputTag("hzzee1jBaseColl"),
                          prunedjets = cms.InputTag("btaggedPatJetsCA8CHSpruned")                         
-                         #,gensTag = cms.InputTag("genParticles"),
+                         #,gensTag = cms.InputTag(usingGenTag),
                          #,PFCandidates = cms.InputTag("particleFlow"),
                          #,primaryVertices = cms.InputTag("offlinePrimaryVertices"),
                          #,dzCut = cms.double(0.1)
@@ -110,7 +116,7 @@ hzzee1j = cms.EDProducer("H2l2qmergedCandidateData",
 hzzmm1j = cms.EDProducer("H2l2qmergedCandidateData",
                          higgs = cms.InputTag("hzzmm1jBaseColl"),
                          prunedjets = cms.InputTag("btaggedPatJetsCA8CHSpruned")
-                         #,gensTag = cms.InputTag("genParticles"),
+                         #,gensTag = cms.InputTag(usingGenTag),
                          #,PFCandidates = cms.InputTag("particleFlow"),
                          #,primaryVertices = cms.InputTag("offlinePrimaryVertices"),
                          #,dzCut = cms.double(0.1)
@@ -119,7 +125,7 @@ hzzmm1j = cms.EDProducer("H2l2qmergedCandidateData",
 hzzem1j = cms.EDProducer("H2l2qmergedCandidateData",
                          higgs = cms.InputTag("hzzem1jBaseColl"),
                          prunedjets = cms.InputTag("btaggedPatJetsCA8CHSpruned")                         
-                         #,gensTag = cms.InputTag("genParticles"),
+                         #,gensTag = cms.InputTag(usingGenTag),
                          #,PFCandidates = cms.InputTag("particleFlow"),
                          #,primaryVertices = cms.InputTag("offlinePrimaryVertices"),
                          #,dzCut = cms.double(0.1)

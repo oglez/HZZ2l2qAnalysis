@@ -8,9 +8,11 @@ import FWCore.ParameterSet.Config as cms
 #     setupPatElectrons(process)
 #
 
+from PhysicsTools.PatAlgos.tools.pfTools import *  
+
 def setupPatElectrons (process):
 
-    from PhysicsTools.PatAlgos.tools.pfTools import *
+    #from PhysicsTools.PatAlgos.tools.pfTools import *
     
     # We use electrons from GSF
     process.patElectrons.embedTrack = True
@@ -43,47 +45,82 @@ def setupPatElectrons (process):
     #
     process.load("EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi")
     process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('patElectrons')
-    # Hay que cambiar para que selectedPatElectrons use estos.
+    # process.eleRegressionEnergy.useRecHitCollections = cms.bool(True)
+    #process.eleRegressionEnergy.correctionsType
 
-    # Electron sequence:
+    # It seems that the instructions were just to run the regression, but that is
+    # not what we want (I think)... we want the following one:
 
-    process.stdElectronSeq = cms.Sequence(
-            process.pfParticleSelectionSequence +
-            process.eleIsoSequence +
-            process.makePatElectrons +
-        #    process.eleRegressionEnergy +
-            process.selectedPatElectrons
-            )
+    import HZZ2l2qAnalysis.Higgs2l2qCode.Hzz2l2qSetup_cfi as Hzz2l2qSetup
+    
+    process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
+    if Hzz2l2qSetup.runOnMC:  # For MC need to change defauls
+        process.calibratedPatElectrons.isMC = Hzz2l2qSetup.runOnMC
+        process.calibratedPatElectrons.inputDataset = cms.string("Summer12_LegacyPaper")
+        process.calibratedPatElectrons.lumiRatio = 0.607
+
+# #OLD    # Electron sequence:
+# #OLD
+# #OLD    process.stdElectronSeq = cms.Sequence(
+# #OLD            process.pfParticleSelectionSequence +
+# #OLD            process.eleIsoSequence +
+# #OLD            process.makePatElectrons +
+# #OLD            process.eleRegressionEnergy +
+# #OLD            process.selectedPatElectrons
+# #OLD            )
 
     # Classic Electrons with UserData
     process.userDataSelectedElectrons = cms.EDProducer(
         "Higgs2l2bElectronUserData",
-        src = cms.InputTag("selectedPatElectrons"),
+        #src = cms.InputTag("eleRegressionEnergy"),
+        src = cms.InputTag("calibratedPatElectrons"),
         rho = cms.InputTag("kt6PFJets:rho"),
-        primaryVertices=cms.InputTag("offlinePrimaryVertices")
+        primaryVertices=cms.InputTag("offlinePrimaryVertices"),
+        #It is done before applyRegressionEnergy = cms.untracked.bool(True)
         )
+    
+    # Hay que cambiar para que selectedPatElectrons use estos.
+    process.selectedPatElectrons.src = cms.InputTag('userDataSelectedElectrons')
+    
+    # Kinematic cuts on electrons: tight to reduce ntuple size:
+    process.selectedPatElectrons.cut = (
+        "pt > 18 && abs(eta) < 2.5 && (userInt('passTriggerTight') > 0)"
+        )
+        
 
     # Basic electron selection user userdata:
-    process.selectedIDElectrons = cms.EDFilter(
-        "PATElectronSelector",
-        src = cms.InputTag("userDataSelectedElectrons"),
-        cut = cms.string("(userInt('passTriggerTight') > 0)")
-        )
+# #OLD    process.selectedIDElectrons = cms.EDFilter(
+# #OLD        "PATElectronSelector",
+# #OLD        src = cms.InputTag("userDataSelectedElectrons"),
+# #OLD        cut = cms.string("(userInt('passTriggerTight') > 0)")
+# #OLD        )
 
     # total ID+Isolated electrons: select electrons passing LOOSE
     process.selectedIsoElectrons = cms.EDFilter(
         "PATElectronSelector",
-        src = cms.InputTag("selectedIDElectrons"),
-        #    src = cms.InputTag("userDataSelectedElectrons"),
+# #OLD        src = cms.InputTag("selectedIDElectrons"),
+        src = cms.InputTag("selectedPatElectrons"),
+        #src = cms.InputTag("userDataSelectedElectrons"),
         # #OLD    cut = cms.string("(userFloat('cutIDCode') > 1) && (userFloat('passTriggerTight') > 0)")
         cut = cms.string("(userInt('isIsolated')==1)")
         # #OLD    cut = cms.string("electronID('eidVBTFCom95') == 7")
         )
 
-    # Kinematic cuts on electrons: tight to reduce ntuple size:
-    
-    process.selectedPatElectrons.cut = (
-        "pt > 18 && abs(eta) < 2.5"
+    # Electron sequence:
+
+    process.stdElectronSeq = cms.Sequence(
+        process.pfParticleSelectionSequence +
+        process.eleIsoSequence +
+        process.makePatElectrons +
+        process.eleRegressionEnergy +
+        process.calibratedPatElectrons +
+        process.userDataSelectedElectrons +
+        
+## No longer needed        process.selectedIDElectrons +
+        process.selectedPatElectrons +
+        process.selectedIsoElectrons
         )
+
+
 
 ##################################################

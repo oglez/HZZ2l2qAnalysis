@@ -15,5 +15,5 @@
     <use name="CondFormats/PhysicsToolsObjects"/>
     <use name="RecoBTag/Records"/>
     <use name="RecoEgamma/EgammaTools"/>
-    <use name="EGamma/EGammaAnalysisTools"/>
+    <use name="EgammaAnalysis/ElectronTools"/>
 </library>

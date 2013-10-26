@@ -9,6 +9,7 @@
 ///
 /// <PRE>
 /// Changed of name: 30/IX/2013
+///                   22/X/2013  Adapted by Oscar for Data/MC diffeences (Francesco used two codes??)
 /// </PRE>
 ///
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -99,9 +100,13 @@ void H2l2qCandidateData::produce( Event & evt, const EventSetup & ) {
   Handle<std::vector<reco::CompositeCandidate> > higgsH;
   evt.getByLabel(higgsTag, higgsH);
 
+  bool isMC=true; if (gensTag.label()==string("NotAvailable")) isMC=false;
+
   Handle<GenParticleCollection> gensH;
-  evt.getByLabel(gensTag, gensH);
-  GenParticleCollection gens = *gensH;
+  if (isMC) {
+    evt.getByLabel(gensTag, gensH);
+    //GenParticleCollection gens = *gensH;
+  }
 
   // get PFCandidates
   Handle<PFCandidateCollection> pfCandidates;
@@ -252,13 +257,14 @@ void H2l2qCandidateData::produce( Event & evt, const EventSetup & ) {
     jmaxbmatch = false;
     jmaxcmatch = false;
     
-    for (size_t k = 0; k < gens.size(); k++) {
-      if (abs(gens[k].pdgId()) == 5 && gens[k].status() != 3 && deltaR(jmineta, jminphi, gens[k].eta(), gens[k].phi()) < 0.3) jminbmatch = true; 
-      if (abs(gens[k].pdgId()) == 4 && gens[k].status() != 3 && deltaR(jmineta, jminphi, gens[k].eta(), gens[k].phi()) < 0.3) jmincmatch = true; 
-      if (abs(gens[k].pdgId()) == 5 && gens[k].status() != 3 && deltaR(jmaxeta, jmaxphi, gens[k].eta(), gens[k].phi()) < 0.3) jmaxbmatch = true; 
-      if (abs(gens[k].pdgId()) == 4 && gens[k].status() != 3 && deltaR(jmaxeta, jmaxphi, gens[k].eta(), gens[k].phi()) < 0.3) jmaxcmatch = true; 
+    if (isMC) {
+      for (size_t k = 0; k < gensH->size(); k++) {
+	if (abs((*gensH)[k].pdgId()) == 5 && (*gensH)[k].status() != 3 && deltaR(jmineta, jminphi, (*gensH)[k].eta(), (*gensH)[k].phi()) < 0.3) jminbmatch = true; 
+	if (abs((*gensH)[k].pdgId()) == 4 && (*gensH)[k].status() != 3 && deltaR(jmineta, jminphi, (*gensH)[k].eta(), (*gensH)[k].phi()) < 0.3) jmincmatch = true; 
+	if (abs((*gensH)[k].pdgId()) == 5 && (*gensH)[k].status() != 3 && deltaR(jmaxeta, jmaxphi, (*gensH)[k].eta(), (*gensH)[k].phi()) < 0.3) jmaxbmatch = true; 
+	if (abs((*gensH)[k].pdgId()) == 4 && (*gensH)[k].status() != 3 && deltaR(jmaxeta, jmaxphi, (*gensH)[k].eta(), (*gensH)[k].phi()) < 0.3) jmaxcmatch = true; 
+      }
     }
-    
 
     // prepare input for KinFit
     double j1en = j0.energy(); 

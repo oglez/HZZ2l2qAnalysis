@@ -4,4 +4,6 @@
 *.log
 *.root
 arxiv_results
+old
+testing
 #########################################

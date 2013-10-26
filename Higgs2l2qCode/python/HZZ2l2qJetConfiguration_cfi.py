@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+import HZZ2l2qAnalysis.Higgs2l2qCode.Hzz2l2qSetup_cfi as Hzz2l2qSetup
+
 # This code configures the part related to the PAT Jets.
 #
 # In the main code one should add the configuration with:
@@ -100,6 +102,11 @@ selectedPatJetsCA8CHS.cut = cms.string('pt > 25.0 && abs(eta) < 2.4 && getPFCons
 # jets containing subjets...
 #
 # Anyway we need:
+
+if (not Hzz2l2qSetup.runOnMC):
+    PATCMGJetSequenceCA8CHS.remove(jetMCSequenceCA8CHS)
+    PATCMGJetSequenceCA8CHSpruned.remove(jetMCSequenceCA8CHSpruned)
+
 jetSubstructuresSequence += PATCMGJetSequenceCA8CHS
 jetSubstructuresSequence += PATCMGJetSequenceCA8CHSpruned
 # #OLD jetSubstructuresSequence += selectedPatJetsCA8CHSwithNsub

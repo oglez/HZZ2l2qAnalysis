@@ -1,3 +1,10 @@
+/// @file
+/// Code to create the UserData for electrons for the HZZ2l2q framework.
+/// <PRE>
+/// Written by Francesco Fabozzi
+///            O. Gonzalez (20/X/2013) added the regression energy part
+/// </PRE>
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -9,7 +16,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+// #include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
+#include "EgammaAnalysis/ElectronTools/interface/EGammaCutBasedEleId.h"
 
 #include <vector>
 #include <TMath.h>
@@ -25,6 +33,8 @@ public:
 private:
   void produce( edm::Event &, const edm::EventSetup & );
   InputTag src_, rho_, primaryVertices_;
+
+  bool regressionEnergy_;   // To know whether we should use regression energy
   //  const float R03;
 };
 
@@ -33,6 +43,7 @@ Higgs2l2bElectronUserData::Higgs2l2bElectronUserData( const ParameterSet & cfg )
   rho_( cfg.getParameter<edm::InputTag>("rho")),
   primaryVertices_(cfg.getParameter<InputTag>("primaryVertices"))//,
 						    //  R03(0.3)
+  ,regressionEnergy_(cfg.getUntrackedParameter<bool>("applyRegressionEnergy",false))
 {
   produces<std::vector<pat::Electron> >();
 }
@@ -62,6 +73,22 @@ void Higgs2l2bElectronUserData::produce( Event & evt, const EventSetup & ) {
   auto_ptr<vector<pat::Electron> > electronColl( new vector<pat::Electron> (*electrons) );
   for (unsigned int i = 0; i< electronColl->size();++i){
     pat::Electron & el = (*electronColl)[i];
+
+    // The first part is to compute the energy regression and apply it to the electron
+
+    float uncorrE = -1;
+    if (regressionEnergy_) {
+      uncorrE = el.energy();
+      float e=el.ecalRegressionEnergy();
+      if (e>0 && uncorrE>0) {
+	uncorrE=e/uncorrE;
+	math::XYZTLorentzVector newP4(el.px()*uncorrE,el.py()*uncorrE,el.pz()*uncorrE,e);
+	el.setP4(newP4);
+      }
+    }
+    el.addUserFloat("uncorrEnergy",uncorrE);
+
+    // Doing trigger matches
 
     const pat::TriggerObjectStandAloneCollection elHLTMatches = el.triggerObjectMatches();
     float elHLTBit =-1 ;

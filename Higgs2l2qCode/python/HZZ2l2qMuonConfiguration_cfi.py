@@ -24,28 +24,40 @@ def setupPatMuons (process):
     #
     # MuscleFit for muons:
     #
+    import HZZ2l2qAnalysis.Higgs2l2qCode.Hzz2l2qSetup_cfi as Hzz2l2qSetup
+
+    # identifier of the MuScleFit is Data2012_53X_ReReco for data
+    # and Summer12_DR53X_smearReReco for MC (to compare with ReReco data)
+    muscleid = 'Data2012_53X_ReReco'
+    if Hzz2l2qSetup.runOnMC: muscleid = 'Summer12_DR53X_smearReReco'
+    
     process.MuScleFit = cms.EDProducer("MuScleFitPATMuonCorrector",
                                        src = cms.InputTag("patMuons"),
                                        debug = cms.bool(True),
                                        #identifier is Data2012_53X_ReReco for data
                                        # and Summer12_DR53X_smearReReco for MC (to compare with ReReco data)
-                                       identifier = cms.string("Summer12_DR53X_smearReReco"),
-                                        applySmearing = cms.bool(True),   # Must be false in data
+                                       identifier = cms.string(muscleid),
+                                       applySmearing = cms.bool(Hzz2l2qSetup.runOnMC),   # Must be false in data
                                        fakeSmearing = cms.bool(False)
                                     )
 
+# #OLD     # Sequence for muons:
+# #OLD 
+# #OLD     process.stdMuonSeq = cms.Sequence (
+# #OLD         process.pfParticleSelectionSequence +
+# #OLD         process.muIsoSequence +
+# #OLD         process.makePatMuons +
+# #OLD         process.MuScleFit +
+# #OLD         process.selectedPatMuons +
+# #OLD         )
+
+    # Kinematic cuts on electrons: tight to reduce ntuple size:
     process.selectedPatMuons.src = cms.InputTag("MuScleFit")
 
-    # Sequence for muons:
-
-    process.stdMuonSeq = cms.Sequence (
-        process.pfParticleSelectionSequence +
-        process.muIsoSequence +
-        process.makePatMuons +
-        process.MuScleFit +
-        process.selectedPatMuons
+    process.selectedPatMuons.cut = (
+        "pt > 18 && abs(eta) < 2.4"
         )
-
+    
     # Classic Muons with UserData
     process.userDataSelectedMuons = cms.EDProducer(
         "Higgs2l2bMuonUserData",
@@ -82,7 +94,22 @@ def setupPatMuons (process):
 
     process.selectedPatMuons.cut = (
             "pt > 18 && abs(eta) < 2.4"
-                )
+        )
+
+    # Sequence for muons:
+
+    process.stdMuonSeq = cms.Sequence (
+        process.pfParticleSelectionSequence +
+        process.muIsoSequence +
+        process.makePatMuons +
+        process.MuScleFit +
+        process.selectedPatMuons +
+
+        process.userDataSelectedMuons +
+        process.selectedIDMuons +
+        process.selectedIsoMuons
+        )
+        
 
 ##################################################
 
