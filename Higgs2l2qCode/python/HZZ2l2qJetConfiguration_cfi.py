@@ -14,21 +14,25 @@ import HZZ2l2qAnalysis.Higgs2l2qCode.Hzz2l2qSetup_cfi as Hzz2l2qSetup
 #process.load("CMGTools.External.pujetidsequence_cff")
 from CMGTools.External.pujetidsequence_cff import *
 
-# We do use selectedPatJetsAK5
-puJetId.jets=cms.InputTag("selectedPatJetsAK5")
-puJetMva.jets = cms.InputTag("selectedPatJetsAK5")
-puJetIdChs.jets = cms.InputTag("selectedPatJetsAK5")
-puJetMvaChs.jets = cms.InputTag("selectedPatJetsAK5")
+# We do use selectedPatPFJetsAK5
+puJetId.jets=cms.InputTag("selectedPatJetsPFJetsAK5")
+puJetMva.jets = cms.InputTag("selectedPatJetsPFJetsAK5")
+puJetIdChs.jets = cms.InputTag("selectedPatJetsPFJetsAK5")
+puJetMvaChs.jets = cms.InputTag("selectedPatJetsPFJetsAK5")
 
 # Adding user variables to PAT-jets:
 
 customPFJetsNoPUSub = cms.EDProducer(
     'PFJetUserData',
-    JetInputCollection=cms.untracked.InputTag("selectedPatJetsAK5"),
+    JetInputCollection=cms.untracked.InputTag("selectedPatJetsPFJetsAK5"),
     #    is2012Data=cms.untracked.bool(True),
     #    qgMap=cms.untracked.InputTag("qglAK5PF"),
     Verbosity=cms.untracked.bool(False)
     )
+
+if Hzz2l2qSetup.runOnMC:
+    customPFJetsNoPUSub.applySmearing=cms.untracked.bool(True)
+    
 
 # Jet cleaning for patJets
 cleanPatJetsNoPUIsoLept = cms.EDProducer(

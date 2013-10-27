@@ -75,6 +75,11 @@ private:
 		      int & nTracks,
 		      int & nChargedTracks, int & nChargedTracksSV,
 		      bool & isTaggable, bool & isTaggableSV ); 
+
+  /// Gets the corrections to be applied to the jet for smearing (called if enabled).
+  void computeSmearing (float pt, float eta, float genPt, std::vector<float> *val) const;
+
+
     
   //data members
   edm::InputTag   jetLabel_;
@@ -91,10 +96,14 @@ private:
   int _nEventsWithValidVtx;  // Number of events with a "valid" vertex.
   int _nEventsWithMainVtx;  // Number of events with a main vertex.
 
+  bool applySmearing_;   // Aply the smearing to the jets.
+
   bool verbose_;
 };
 
-PFJetUserData::PFJetUserData(const edm::ParameterSet &pSet){
+PFJetUserData::PFJetUserData(const edm::ParameterSet &pSet) :
+  applySmearing_(pSet.getUntrackedParameter<bool>("applySmearing",false))
+{
   jetLabel_ =pSet.getUntrackedParameter<edm::InputTag>("JetInputCollection");
   //  is2012Data_ =pSet.getUntrackedParameter<bool>("is2012Data");
   //  qgMap_ =pSet.getUntrackedParameter<edm::InputTag>("qgMap");
@@ -314,6 +323,34 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
     // MVA PU information
     ijet->addUserFloat("puJetIdMVA",(*puJetIdMVA)[jetRef]);
     ijet->addUserInt("puJetIdFlag",(*puJetIdFlag)[jetRef]);
+
+    // Testing MC: if requested
+
+    float originalpt=-1;
+
+    //OLD    cout<<"JETS "<<applySmearing_<<" "<<originalpt<<" "<<patjjet.pt()<<" "<<patjjet.eta()<<" "<<patjjet.phi()<<" "<<ijet->genJet()<<endl;
+
+    if (applySmearing_) {
+      const reco::GenJet *genJet = ijet->genJet();
+      if (genJet!=NULL) {
+	std::vector<float> corr;
+	originalpt=patjjet.pt();
+	computeSmearing(originalpt,patjjet.eta(),patjjet.genJet()->pt(),&corr);
+
+	float newJERSF=corr[0]/originalpt;
+	math::XYZTLorentzVector newP4(patjjet.px()*newJERSF,patjjet.py()*newJERSF,patjjet.pz()*newJERSF,patjjet.energy()*newJERSF);
+
+	ijet->setP4(newP4);
+      }
+    }
+    //OLD    cout<<"       "<<originalpt<<" "<<patjjet.pt()<<" "<<patjjet.eta()<<" "<<patjjet.phi()<<" "<<patjjet.genJet();
+    //OLD     if (patjjet.genJet()!=NULL) {
+    //OLD       cout<<" "<<patjjet.genJet()->pt()<<" "<<patjjet.genJet()->eta()<<" "<<patjjet.genJet()->phi();
+    //OLD     }
+    //OLD     else cout<<"UNMATCHED";
+    //OLD     cout<<endl;
+    
+    ijet->addUserFloat("unsmearedPt",originalpt);
 
     //OLD njetInColl++;
 
@@ -567,6 +604,26 @@ void PFJetUserData::isTaggableJet( const pat::Jet & jet, const reco::Vertex & pr
   ///
   isTaggable = ( passBaseSel && nChargedTracks >= 1 && nTracks >= 2  );
   isTaggableSV = ( passBaseSel && nChargedTracksSV >= 1 && nTracks >= 2  );
+}
+
+void PFJetUserData::computeSmearing (float pt, float eta, float genPt, std::vector<float> *val) const
+// Gets the corrections to be applied to the jet for smearing (called if enabled).
+{
+  // Reading the parameters to compute the correction:
+  eta=fabs(eta);
+  double ptSF(1.0), ptSF_err(0.06);
+  if(eta<0.5) { ptSF=1.052; ptSF_err=sqrt(pow(0.012,2)+pow(0.5*(0.062+0.061),2)); }
+  else if(eta>=0.5 && eta<1.1) { ptSF=1.057; ptSF_err=sqrt(pow(0.012,2)+pow(0.5*(0.056+0.055),2)); }
+  else if(eta>=1.1 && eta<1.7) { ptSF=1.096; ptSF_err=sqrt(pow(0.017,2)+pow(0.5*(0.063+0.062),2)); }
+  else if(eta>=1.7 && eta<2.3) { ptSF=1.134; ptSF_err=sqrt(pow(0.035,2)+pow(0.5*(0.087+0.085),2)); }
+  else if(eta>=2.3 && eta<5.0) { ptSF=1.288; ptSF_err=sqrt(pow(0.127,2)+pow(0.5*(0.155+0.153),2)); }
+      
+  // Setting the values:
+
+  val->clear();
+  val->push_back(TMath::Max(0.,(genPt+ptSF*(pt-genPt))));  // Central: index 0
+  val->push_back(TMath::Max(0.,(genPt+(ptSF+ptSF_err)*(pt-genPt))));   // Up error: index 1
+  val->push_back(TMath::Max(0.,(genPt+(ptSF-ptSF_err)*(pt-genPt))));   // Down error: index 2
 }
 
 // ========= MODULE DEF ==============

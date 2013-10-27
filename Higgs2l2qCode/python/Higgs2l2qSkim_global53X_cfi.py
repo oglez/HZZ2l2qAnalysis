@@ -87,7 +87,7 @@ from PhysicsTools.PatAlgos.tools.coreTools import *
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 # ---------------- Sequence AK5 ----------------------
-postfixAK5 ="AK5"
+postfixAK5 ="PFJetsAK5"
 jetAlgoAK5 ="AK5"
 
 # Configure PAT to use PFBRECO instead of AOD sources
@@ -104,29 +104,31 @@ getattr(process,"pfNoTau"+postfixAK5).enable = False
 getattr(process,"pfNoJet"+postfixAK5).enable = True
 
 # removing default cuts on muons 	 
-getattr(process,"pfMuonsFromVertexAK5").dzCut = 99 	 
-getattr(process,"pfMuonsFromVertexAK5").d0Cut = 99 	 
-getattr(process,"pfSelectedMuonsAK5").cut="pt()>3" 	 
+getattr(process,"pfMuonsFromVertex"+postfixAK5).dzCut = 99 	 
+getattr(process,"pfMuonsFromVertex"+postfixAK5).d0Cut = 99 	 
+getattr(process,"pfSelectedMuons"+postfixAK5).cut="pt()>3" 	 
 getattr(process,"pfIsolatedMuons"+postfixAK5).isolationCut = 999999 	 
 
 # removing default cuts on electrons 	 
-getattr(process,"pfElectronsFromVertexAK5").dzCut = 99 	 
-getattr(process,"pfElectronsFromVertexAK5").d0Cut = 99 	 
-getattr(process,"pfSelectedElectronsAK5").cut="pt()>5" 	 
+getattr(process,"pfElectronsFromVertex"+postfixAK5).dzCut = 99 	 
+getattr(process,"pfElectronsFromVertex"+postfixAK5).d0Cut = 99 	 
+getattr(process,"pfSelectedElectrons"+postfixAK5).cut="pt()>5" 	 
 getattr(process,"pfIsolatedElectrons"+postfixAK5).isolationCut = 999999 	 
 # remove pfTau and pfPhoton from the sequence
-process.PFBRECOAK5.remove( process.pfTauSequenceAK5 )
-process.PFBRECOAK5.remove( process.pfNoTauAK5 )
-process.PFBRECOAK5.remove( process.pfPhotonSequenceAK5 )
+getattr(process,"PFBRECO"+postfixAK5).remove( getattr(process,"pfTauSequence"+postfixAK5) )
+getattr(process,"PFBRECO"+postfixAK5).remove( getattr(process,"pfNoTau"+postfixAK5) )
+getattr(process,"PFBRECO"+postfixAK5).remove( getattr(process,"pfPhotonSequence"+postfixAK5) )
 
 # make sure about patJets input
-switchToPFJets(process, input=cms.InputTag('pfJetsAK5'), algo=jetAlgoAK5, postfix = postfixAK5, jetCorrections=('AK5PF', jetCorrections))
+# There was a bug in the old version... incredible:
+# # switchToPFJets(process, input=cms.InputTag('pfJetsAK5'), algo=jetAlgoAK5, postfix = postfixAK5, jetCorrections=('AK5PF', jetCorrections))
+switchToPFJets(process, input=cms.InputTag('pfJetsPFJetsAK5'), algo=jetAlgoAK5, postfix = postfixAK5, jetCorrections=('AK5PF', jetCorrections), type1=True)
 
 ### we use "classic" muons and electrons (see below)
-removeSpecificPATObjects(process, ['Taus'], postfix = "AK5")
-removeSpecificPATObjects(process, ['Electrons'], postfix = "AK5")
-removeSpecificPATObjects(process, ['Muons'], postfix = "AK5")
-removeSpecificPATObjects(process, ['Photons'], postfix = "AK5")
+removeSpecificPATObjects(process, ['Taus'], postfix = postfixAK5)
+removeSpecificPATObjects(process, ['Electrons'], postfix = postfixAK5)
+removeSpecificPATObjects(process, ['Muons'], postfix = postfixAK5)
+removeSpecificPATObjects(process, ['Photons'], postfix = postfixAK5)
 
 ############### remove useless modules ####################
 def removeUseless( modName ):
@@ -136,10 +138,10 @@ def removeUseless( modName ):
 
 removeUseless( "produceCaloMETCorrections" )
 removeUseless( "pfCandsNotInJet" )
-removeUseless( "pfJetMETcorr" )
+#removeUseless( "pfJetMETcorr" )
 removeUseless( "pfCandMETcorr" )
 removeUseless( "pfchsMETcorr" )
-removeUseless( "pfType1CorrectedMet" )
+#removeUseless( "pfType1CorrectedMet" )
 removeUseless( "pfType1p2CorrectedMet" )
 removeUseless( "electronMatch" )
 removeUseless( "muonMatch" )
@@ -162,14 +164,17 @@ process.load("CMGTools.Common.PAT.MetSignificance_cff")
 setattr(process,"PFMETSignificance"+postfixAK5, process.pfMetSignificance.clone())
 getattr(process,"patDefaultSequence"+postfixAK5).insert(getattr(process,"patDefaultSequence"+postfixAK5).index(getattr(process,"patMETs"+postfixAK5)),getattr(process,"PFMETSignificance"+postfixAK5))
 
+# Trying to add stuff on the PAT for Type1 corrections:
+# #process.load("CMGTools.Common.PAT.PATMet_cff")
+
 ####################################################################
 
 ########## add specific configuration for pat Jets ##############
 
 getattr(process,"patJets"+postfixAK5).addTagInfos = True
 getattr(process,"patJets"+postfixAK5).tagInfoSources  = cms.VInputTag(
-    cms.InputTag("secondaryVertexTagInfosAODAK5"),
-    cms.InputTag("impactParameterTagInfosAODAK5")
+    cms.InputTag("secondaryVertexTagInfosAOD"+postfixAK5),
+    cms.InputTag("impactParameterTagInfosAOD"+postfixAK5)
     )
 ### non default embedding of AOD items for default patJets
 getattr(process,"patJets"+postfixAK5).embedCaloTowers = False
@@ -177,15 +182,18 @@ getattr(process,"patJets"+postfixAK5).embedPFCandidates = True
 
 ### disable MC matching (will be done at analysis level)
 getattr(process,"patJets"+postfixAK5).addGenPartonMatch = False
-getattr(process,"patJets"+postfixAK5).addGenJetMatch = False
+
+if not(Hzz2l2qSetup.runOnMC): # Data (in MC is needed for smearing)
+    getattr(process,"patJets"+postfixAK5).addGenJetMatch = False
 
 # Processing the jet configuration
 
 process.load('HZZ2l2qAnalysis.Higgs2l2qCode.HZZ2l2qJetConfiguration_cfi')
 #import HZZ2l2qAnalysis.Higgs2l2qCode.HZZ2l2qJetConfiguration_cfi as process
 
-# Seleting jets:
-process.selectedPatJetsAK5.cut = cms.string('pt > 25.0')
+# Seleting jets: safe cut on 25 since it is before smearing and to be
+# safe for energy scale studies. DO USE 30 IN ANALYSIS
+getattr(process,"selectedPatJets"+postfixAK5).cut = cms.string('pt > 25.0')
 
 ############## "Classic" PAT Muons and Electrons ########################
 
@@ -241,7 +249,12 @@ process.p += process.cleanPatJetsNoPUIsoLept
 
 process.p += process.jetSubstructuresSequence
 
-process.p.replace(process.selectedPatJetsAK5,process.selectedPatJetsAK5*process.puJetIdSqeuence)
+# #process.p.replace(process.selectedPatJetsAK5,process.selectedPatJetsAK5*process.puJetIdSqeuence)
+process.p.replace(getattr(process,"selectedPatJets"+postfixAK5),getattr(process,"selectedPatJets"+postfixAK5)*process.puJetIdSqeuence)
+
+process.p.replace(getattr(process,"patMETs"+postfixAK5),
+                  getattr(process,"pfJetMETcorr"+postfixAK5)*getattr(process,"pfType1CorrectedMet"+postfixAK5)*getattr(process,"patMETs"+postfixAK5))
+
 
 # Combinatorial process:
 
@@ -359,7 +372,7 @@ process.out.outputCommands.extend([
     'keep *_selectedIDMuons_*_PAT',
     'keep *_selectedPatElectrons_*_PAT',
 #    'keep *_customPFJets_*_PAT',
-    'keep *_selectedPatJetsAK5_pfCandidates_PAT',
+    'keep *_selectedPatJetsPFJetsAK5_pfCandidates_PAT',
     'keep *_cleanPatJetsNoPUIsoLept_*_PAT',
     # rho variables
     'keep *_*_rho_PAT',

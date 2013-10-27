@@ -15,9 +15,9 @@ Hzz2l2qSetup.higgsMass = 900
 # Files to run over:
 
 Hzz2l2qSetup.usingfiles = [
-    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/A6B3E111-8602-E211-8B03-90E6BA442F12.root",
-    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/26A46B19-8E02-E211-83F1-E0CB4E1A117D.root",
-    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/48614CD2-7402-E211-88ED-485B39800BF3.root"
+    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/A6B3E111-8602-E211-8B03-90E6BA442F12.root',
+    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/26A46B19-8E02-E211-83F1-E0CB4E1A117D.root',
+    'file:/data1/oglez/spool/Higgs900_gg_zzllqq_POWHEG_AOD532/48614CD2-7402-E211-88ED-485B39800BF3.root'
     ]
 
 ################
