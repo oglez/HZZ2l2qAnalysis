@@ -61,8 +61,8 @@ private:
   //OGL  int runJetKinFit(TLorentzVector &, TLorentzVector &, 
   //OGL  		  const TLorentzVector &, TLorentzVector &, TLorentzVector &,
   //OGL                   float &, float &);
-  //OGL  void getLDVariables(float, float, float, float, float, float, 
-  //OGL		      float &, float &, float &);  
+  void getLDVariables(float, float, float, float, float, float, 
+  		      float &, float &, float &);  
 
   InputTag higgsTag;//OGL, gensTag;
   InputTag prunedJetTag;// pruned jets for pruned mass, subjet kinematics and subjet btags
@@ -135,8 +135,8 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
 //OGL   TLorentzVector j1corr;
 //OGL   TLorentzVector j2corr;
 //OGL   TLorentzVector HZZKinFit4mom, ZLL4mom, Zjj4mom; //initialized to (0, 0, 0 ,0)
-//OGL   float helyLD;
-//OGL   float ldSig, ldBkg;
+  float helyLD;
+  float ldSig, ldBkg;
 //OGL   float helyLDRefit;
 //OGL   float ldSigRefit, ldBkgRefit;
 //OGL   //  float trkMetX, trkMetY, trkMet, trkPlusNeuMet;
@@ -348,11 +348,11 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
 //OGL     helicityAnglesRefit( Zll, j1corr, j2corr);
 //OGL 
 //OGL 
-//OGL     // Get LD variable
-//OGL     getLDVariables( costhetaNT1, costhetaNT2, costhetastarNT,
-//OGL 		    phiNT, phiNT1, H.mass(), 
-//OGL 		    ldSig, ldBkg, helyLD );
-//OGL     
+    // Get LD variable
+    getLDVariables( costhetaNT1, costhetaNT2, costhetastarNT,
+		    phiNT, phiNT1, H.mass(), 
+		    ldSig, ldBkg, helyLD );
+
 //OGL     if (kinfitstatus==0)
 //OGL       getLDVariables( costhetaNT1Refit, costhetaNT2Refit, costhetastarNTRefit,
 //OGL 		      phiNTRefit, phiNT1Refit, HZZRefitMass, 
@@ -403,9 +403,9 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
 //OGL     h.addUserFloat("HZZRefitMass", HZZRefitMass);
 //OGL     h.addUserFloat("KFchiSquare", KFchiSquare);
 //OGL     h.addUserFloat("KFchiSquareProb", KFchiSquareProb);
-//OGL     h.addUserFloat("helyLD", helyLD);
-//OGL     h.addUserFloat("ldSig", ldSig);
-//OGL     h.addUserFloat("ldBkg", ldBkg);
+    h.addUserFloat("helyLD", helyLD);
+    h.addUserFloat("ldSig", ldSig);
+    h.addUserFloat("ldBkg", ldBkg);
 //OGL     h.addUserFloat("helyLDRefit", helyLDRefit);
 //OGL     h.addUserFloat("ldSigRefit", ldSigRefit);
 //OGL     h.addUserFloat("ldBkgRefit", ldBkgRefit);
@@ -423,23 +423,23 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
   evt.put( higgsColl, "h");
 }
 
-//OGL void H2l2qmergedCandidateData::getLDVariables( float costhetaNT1, float costhetaNT2, float costhetastarNT,
-//OGL 					       float phiNT, float phiNT1, float Hmass, 
-//OGL 					       float & ldSig, float & ldBkg, float & helyLD ){
-//OGL   ldSig = -100.0; ldBkg=-100.0; helyLD=-100.0;
-//OGL   HelicityLikelihoodDiscriminant LD_;
-//OGL   HelicityLikelihoodDiscriminant::HelicityAngles myha;
-//OGL   myha.helCosTheta1    = costhetaNT1;
-//OGL   myha.helCosTheta2    = costhetaNT2;
-//OGL   myha.helCosThetaStar = costhetastarNT;
-//OGL   myha.helPhi          = phiNT;
-//OGL   myha.helPhi1         = phiNT1;
-//OGL   myha.mzz             = Hmass;
-//OGL   LD_.setMeasurables(myha);
-//OGL   ldSig = LD_.getSignalProbability();
-//OGL   ldBkg = LD_.getBkgdProbability();
-//OGL   helyLD = ldSig / (ldSig + ldBkg);
-//OGL }
+void H2l2qmergedCandidateData::getLDVariables( float costhetaNT1, float costhetaNT2, float costhetastarNT,
+					       float phiNT, float phiNT1, float Hmass, 
+					       float & ldSig, float & ldBkg, float & helyLD ){
+  ldSig = -100.0; ldBkg=-100.0; helyLD=-100.0;
+  HelicityLikelihoodDiscriminant LD_;
+  HelicityLikelihoodDiscriminant::HelicityAngles myha;
+  myha.helCosTheta1    = costhetaNT1;
+  myha.helCosTheta2    = costhetaNT2;
+  myha.helCosThetaStar = costhetastarNT;
+  myha.helPhi          = phiNT;
+  myha.helPhi1         = phiNT1;
+  myha.mzz             = Hmass;
+  LD_.setMeasurables(myha);
+  ldSig = LD_.getSignalProbability();
+  ldBkg = LD_.getBkgdProbability();
+  helyLD = ldSig / (ldSig + ldBkg);
+}
 
 void H2l2qmergedCandidateData::helicityAngles (const reco::Candidate *Zll, const reco::Candidate *Zjj) {
   // prepare for helicity angles computation

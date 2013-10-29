@@ -1,7 +1,7 @@
 #
 # Files we obtain when running tests jobs
 #########################################
-*.log
+*.log*
 *.root
 arxiv_results
 old

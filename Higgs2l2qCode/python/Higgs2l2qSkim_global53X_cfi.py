@@ -89,11 +89,12 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 # ---------------- Sequence AK5 ----------------------
 postfixAK5 ="PFJetsAK5"
 jetAlgoAK5 ="AK5"
+useType1 = True
 
 # Configure PAT to use PFBRECO instead of AOD sources
 # this function will modify the PAT sequences.
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgoAK5, runOnMC=Hzz2l2qSetup.runOnMC, postfix=postfixAK5,
-          jetCorrections=('AK5PF', jetCorrections))
+          jetCorrections=('AK5PF', jetCorrections), typeIMetCorrections=useType1)
 
 ### DO NOT APPLY PFnoPU ###
 getattr(process,"pfNoPileUp"+postfixAK5).enable = False
@@ -122,7 +123,14 @@ getattr(process,"PFBRECO"+postfixAK5).remove( getattr(process,"pfPhotonSequence"
 # make sure about patJets input
 # There was a bug in the old version... incredible:
 # # switchToPFJets(process, input=cms.InputTag('pfJetsAK5'), algo=jetAlgoAK5, postfix = postfixAK5, jetCorrections=('AK5PF', jetCorrections))
-switchToPFJets(process, input=cms.InputTag('pfJetsPFJetsAK5'), algo=jetAlgoAK5, postfix = postfixAK5, jetCorrections=('AK5PF', jetCorrections), type1=True)
+switchToPFJets(process, input=cms.InputTag('pfJetsPFJetsAK5'), algo=jetAlgoAK5, postfix = postfixAK5, jetCorrections=('AK5PF', jetCorrections), type1=useType1)
+# It seems that it is completely irrelevant to set the type1 here or not... when it is set above (in usePF2PAT).
+
+if useType1:
+    process.patMETsPFJetsAK5.metSource = cms.InputTag("patType1CorrectedPFMetPFJetsAK5")
+# In case we disable just the one in usePF2PAT   process.patMETsPFJetsAK5.metSource = cms.InputTag("pfMETPFJetsAK5")
+
+
 
 ### we use "classic" muons and electrons (see below)
 removeSpecificPATObjects(process, ['Taus'], postfix = postfixAK5)
@@ -137,12 +145,12 @@ def removeUseless( modName ):
         )
 
 removeUseless( "produceCaloMETCorrections" )
-removeUseless( "pfCandsNotInJet" )
+#removeUseless( "pfCandsNotInJet" )
 #removeUseless( "pfJetMETcorr" )
-removeUseless( "pfCandMETcorr" )
-removeUseless( "pfchsMETcorr" )
+#removeUseless( "pfCandMETcorr" )
+#removeUseless( "pfchsMETcorr" )
 #removeUseless( "pfType1CorrectedMet" )
-removeUseless( "pfType1p2CorrectedMet" )
+#removeUseless( "pfType1p2CorrectedMet" )
 removeUseless( "electronMatch" )
 removeUseless( "muonMatch" )
 removeUseless( "patPFTauIsolation" )
@@ -151,21 +159,23 @@ removeUseless( "tauGenJets" )
 removeUseless( "tauGenJetsSelectorAllHadrons" )
 removeUseless( "tauGenJetMatch" )
 removeUseless( "patHPSPFTauDiscrimination" )
+
+
 #########################################################
 
 # curing a weird bug in PAT..
 from CMGTools.Common.PAT.removePhotonMatching import removePhotonMatching
 removePhotonMatching( process, postfixAK5 )
 
-########## insert the PFMET significance calculation #############
-
-process.load("CMGTools.Common.PAT.MetSignificance_cff")
-
-setattr(process,"PFMETSignificance"+postfixAK5, process.pfMetSignificance.clone())
-getattr(process,"patDefaultSequence"+postfixAK5).insert(getattr(process,"patDefaultSequence"+postfixAK5).index(getattr(process,"patMETs"+postfixAK5)),getattr(process,"PFMETSignificance"+postfixAK5))
-
-# Trying to add stuff on the PAT for Type1 corrections:
-# #process.load("CMGTools.Common.PAT.PATMet_cff")
+# #OLD ########## insert the PFMET significance calculation #############
+# #OLD 
+# #OLD process.load("CMGTools.Common.PAT.MetSignificance_cff")
+# #OLD 
+# #OLD setattr(process,"PFMETSignificance"+postfixAK5, process.pfMetSignificance.clone())
+# #OLD getattr(process,"patDefaultSequence"+postfixAK5).insert(getattr(process,"patDefaultSequence"+postfixAK5).index(getattr(process,"patMETs"+postfixAK5)),getattr(process,"PFMETSignificance"+postfixAK5))
+# #OLD 
+# #OLD # Trying to add stuff on the PAT for Type1 corrections:
+# #OLD # #process.load("CMGTools.Common.PAT.PATMet_cff")
 
 ####################################################################
 
@@ -252,8 +262,18 @@ process.p += process.jetSubstructuresSequence
 # #process.p.replace(process.selectedPatJetsAK5,process.selectedPatJetsAK5*process.puJetIdSqeuence)
 process.p.replace(getattr(process,"selectedPatJets"+postfixAK5),getattr(process,"selectedPatJets"+postfixAK5)*process.puJetIdSqeuence)
 
+#process.p.replace(getattr(process,"patMETs"+postfixAK5),
+#                  getattr(process,"pfJetMETcorr"+postfixAK5)*getattr(process,"pfType1CorrectedMet"+postfixAK5)*getattr(process,"patMETs"+postfixAK5))
+
+########## insert the PFMET significance calculation #############
+
+process.load("CMGTools.Common.PAT.MetSignificance_cff")
+
+setattr(process,"PFMETSignificance"+postfixAK5, process.pfMetSignificance.clone())
+#getattr(process,"patDefaultSequence"+postfixAK5).insert(getattr(process,"patDefaultSequence"+postfixAK5).index(getattr(process,"patMETs"+postfixAK5))+1,getattr(process,"PFMETSignificance"+postfixAK5))
 process.p.replace(getattr(process,"patMETs"+postfixAK5),
-                  getattr(process,"pfJetMETcorr"+postfixAK5)*getattr(process,"pfType1CorrectedMet"+postfixAK5)*getattr(process,"patMETs"+postfixAK5))
+                  getattr(process,"patMETs"+postfixAK5)*getattr(process,"PFMETSignificance"+postfixAK5))
+
 
 
 # Combinatorial process:
@@ -372,7 +392,7 @@ process.out.outputCommands.extend([
     'keep *_selectedIDMuons_*_PAT',
     'keep *_selectedPatElectrons_*_PAT',
 #    'keep *_customPFJets_*_PAT',
-    'keep *_selectedPatJetsPFJetsAK5_pfCandidates_PAT',
+    'keep *_selectedPatJets*_pfCandidates_PAT',
     'keep *_cleanPatJetsNoPUIsoLept_*_PAT',
     # rho variables
     'keep *_*_rho_PAT',
@@ -422,6 +442,7 @@ process.out.outputCommands.extend([
     ###### MET products
     'keep *_patMETs*_*_*',
 #    'keep *_patType1CorrectedPFMet_*_*', # NOT included for the moment
+    'keep *_PFMETSignificance*_*_*',
     ### for HLT selection
     'keep edmTriggerResults_TriggerResults_*_HLT'])
 

@@ -15,6 +15,9 @@
 
 //OLD #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+
 
 
 // C++ classes
@@ -87,6 +90,22 @@ void Higgs2l2qDebugModule::analyze (const edm::Event& iEvent, const edm::EventSe
       printInfoCandidate(*xcand);
     }
   }
+
+  // Check on MET:
+
+  edm::Handle<pat::METCollection> metHandle;
+  iEvent.getByLabel("patMETsPFJetsAK5", metHandle);
+  pat::METCollection met_h = *metHandle;
+
+  cout<<"MET: "<<met_h.front().et()<<" "<<met_h.front().sumEt()<<" "<<met_h.front().mEtSig()<<endl;
+  // met significance
+  TMatrixD metmat = met_h.front().getSignificanceMatrix();
+  //  metmat.Print();
+  if( (metmat < 1.0e10) && (metmat > -1.0e10) ) {
+    //    float determ_mat = metmat.Determinant();
+    //    cout << "determinant = " << determ_mat << endl;
+    cout<<"     significance: "<< met_h.front().significance()<<endl;
+  } 
 
 }
 
