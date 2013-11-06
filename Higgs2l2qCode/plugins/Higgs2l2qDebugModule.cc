@@ -15,10 +15,11 @@
 
 //OLD #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-
-
 
 // C++ classes
 
@@ -90,6 +91,12 @@ void Higgs2l2qDebugModule::analyze (const edm::Event& iEvent, const edm::EventSe
       printInfoCandidate(*xcand);
     }
   }
+
+  // We make a print-out of the jets in the event:
+  edm::Handle<edm::View<pat::Jet> > jetColl;
+  iEvent.getByLabel("cleanPatJetsNoPUIsoLept", jetColl);
+
+  cout<<"Jets used for the previous quantities: "<<jetColl->size()<<endl;
 
   // Check on MET:
 

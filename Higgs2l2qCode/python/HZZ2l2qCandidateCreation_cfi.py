@@ -9,25 +9,27 @@ import FWCore.ParameterSet.Config as cms
 #
 
 zee = cms.EDProducer("CandViewShallowCloneCombiner",
-                     checkCharge = cms.bool(False),
+                     checkCharge = cms.bool(False),   # WE DO NOT CUT ON THE CHARGE
                      cut = cms.string('mass > 20 '),
                      #decay = cms.string("userDataSelectedElectrons@+ userDataSelectedElectrons@-")
                      decay = cms.string("selectedPatElectrons@+ selectedPatElectrons@-")
                      )
 
 zmm = cms.EDProducer("CandViewShallowCloneCombiner",
-                     checkCharge = cms.bool(False),
+                     checkCharge = cms.bool(False),   # WE DO NOT CUT ON THE CHARGE
                      cut = cms.string('mass > 20 '),
                      #decay = cms.string("userDataSelectedMuons@+ userDataSelectedMuons@-")
                      decay = cms.string("selectedIDMuons@+ selectedIDMuons@-")
                      )
 
 zem = cms.EDProducer("CandViewShallowCloneCombiner",
-                     checkCharge = cms.bool(False),
+                     checkCharge = cms.bool(False),   # WE DO NOT CUT ON THE CHARGE
                      cut = cms.string('mass > 20 '),
                      #                                 decay = cms.string("userDataSelectedElectrons@+ userDataSelectedMuons@-")
-                     decay = cms.string("selectedPatElectrons@+ selectedIDMuons@-")
-                     #Para checks... creo que incluidos.                             decay = cms.string("selectedIDElectrons@- selectedIDMuons@+")
+                     decay = cms.string("selectedIDMuons selectedPatElectrons")
+                     #decay = cms.string("selectedPatElectrons@+ selectedIDMuons@-")
+                     # It should be noted that we could safely cut on the charge of leptons since it
+                     # takes the reverse combinations also... even when requesting same charge (++ gets also the --)
                      )
 
 zjj = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -145,8 +147,9 @@ zllFilter = cms.EDFilter("CandViewCountFilter",
 # a Z(ll)+2 jets but one Higgs candidate
 
 allhcand = cms.EDProducer("CandViewMerger",
-                          src = cms.VInputTag("hzzeejjBaseColl","hzzmmjjBaseColl","hzzemjjBaseColl",
-                                              "hzzee1jBaseColl","hzzmm1jBaseColl","hzzem1jBaseColl")
+                          src = cms.VInputTag("hzzeejjBaseColl","hzzmmjjBaseColl","hzzemjjBaseColl"
+                                              ,"hzzee1jBaseColl","hzzmm1jBaseColl","hzzem1jBaseColl"
+                                              )
                           )
 
 candFilter = cms.EDFilter("CandViewCountFilter",

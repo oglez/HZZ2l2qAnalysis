@@ -354,6 +354,12 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
 
     //OLD njetInColl++;
 
+    // Printing info on jets
+
+//    cout<<"JET "<<originalpt<<" "<<patjjet.pt()<<" "<<patjjet.eta()<<" "<<patjjet.phi()<<" "<<patjjet.genJet()<<endl;
+//    cout<<"    "<< int(isTaggable)<<" "<<int(isTaggableSV)<<" "<<patjjet.bDiscriminator("jetBProbabilityBJetTags")<<" "<<patjjet.bDiscriminator("combinedSecondaryVertexMVABJetTags")<<endl;
+//
+
   }//end loop on jets
   
   //  for(std::vector<pat::Muon>::const_iterator imu=muColl->begin(); imu!=muColl->end();++imu ){
