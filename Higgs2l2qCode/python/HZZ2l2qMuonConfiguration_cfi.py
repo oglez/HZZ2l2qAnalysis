@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.tools.pfTools import *
 
 # This code configures the part related to the PAT Muons.
 #
@@ -14,8 +15,6 @@ def setupPatMuons (process):
     process.patMuons.embedTcMETMuonCorrs = False
     process.patMuons.embedCaloMETMuonCorrs = False
     process.patMuons.embedTrack = True
-
-    from PhysicsTools.PatAlgos.tools.pfTools import *
 
     # use PFIsolation
     process.muIsoSequence = setupPFMuonIso(process, 'muons', 'PFIso')

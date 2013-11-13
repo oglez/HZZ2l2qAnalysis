@@ -338,9 +338,14 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
 	computeSmearing(originalpt,patjjet.eta(),patjjet.genJet()->pt(),&corr);
 
 	float newJERSF=corr[0]/originalpt;
-	math::XYZTLorentzVector newP4(patjjet.px()*newJERSF,patjjet.py()*newJERSF,patjjet.pz()*newJERSF,patjjet.energy()*newJERSF);
-
-	ijet->setP4(newP4);
+	
+	// We do not apply the smearing if the new momentum                                                                                  
+        // is too small                                                                                                                      
+        if (newJERSF>0.1) {
+	  math::XYZTLorentzVector newP4(patjjet.px()*newJERSF,patjjet.py()*newJERSF,patjjet.pz()*newJERSF,patjjet.energy()*newJERSF);
+	  
+	  ijet->setP4(newP4);
+	}
       }
     }
     //OLD    cout<<"       "<<originalpt<<" "<<patjjet.pt()<<" "<<patjjet.eta()<<" "<<patjjet.phi()<<" "<<patjjet.genJet();

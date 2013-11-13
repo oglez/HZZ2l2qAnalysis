@@ -19,11 +19,11 @@ mv ./CMGTools/External/data_NOTNEEDED/dummy.txt ./CMGTools/External/data/
 mv ./EgammaAnalysis/ElectronTools/data ./EgammaAnalysis/ElectronTools/data_NOTNEEDED
 mkdir ./EgammaAnalysis/ElectronTools/data
 mv ./EgammaAnalysis/ElectronTools/data_NOTNEEDED/eleEnergyRegWeights_WithSubClusters_VApr15.root \
-   ./CMGTools/External/data/
+   ./EgammaAnalysis/ElectronTools/data
 mv ./EgammaAnalysis/ElectronTools/data_NOTNEEDED/linearityNewReg-May2013.csv \
-   ./CMGTools/External/data/
+   ./EgammaAnalysis/ElectronTools/data
 mv ./EgammaAnalysis/ElectronTools/data_NOTNEEDED/scalesNewReg-May2013.csv \
-   ./CMGTools/External/data/
+   ./EgammaAnalysis/ElectronTools/data
 
 # Other useless packages (I think)
 mv ./CMGTools/Common/python/skims ./CMGTools/Common/python/skims_NOTNEEDED
