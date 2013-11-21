@@ -96,18 +96,21 @@ private:
   int _nEventsWithValidVtx;  // Number of events with a "valid" vertex.
   int _nEventsWithMainVtx;  // Number of events with a main vertex.
 
-  bool applySmearing_;   // Aply the smearing to the jets.
+  bool applySmearing_;   // Apply the smearing to the jets.
+
+  bool subjetProcessing_;  // For subjets we ignore part of the stuff.
 
   bool verbose_;
 };
 
 PFJetUserData::PFJetUserData(const edm::ParameterSet &pSet) :
   applySmearing_(pSet.getUntrackedParameter<bool>("applySmearing",false))
+  ,subjetProcessing_(pSet.getUntrackedParameter<bool>("SubjetProcessing",false))
 {
   jetLabel_ =pSet.getUntrackedParameter<edm::InputTag>("JetInputCollection");
   //  is2012Data_ =pSet.getUntrackedParameter<bool>("is2012Data");
   //  qgMap_ =pSet.getUntrackedParameter<edm::InputTag>("qgMap");
-  verbose_=pSet.getUntrackedParameter<bool>("Verbosity");
+  verbose_=pSet.getUntrackedParameter<bool>("Verbosity"); 
 
   // for beta/beta* 
   _verticesZ.clear();
@@ -183,10 +186,11 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
 
   // Adding the information we need from the PU tagger (official)
   Handle<ValueMap<float> > puJetIdMVA;
-  iEvt.getByLabel("puJetMva","full53xDiscriminant",puJetIdMVA);
-
   Handle<ValueMap<int> > puJetIdFlag;
-  iEvt.getByLabel("puJetMva","full53xId",puJetIdFlag);
+  if (!subjetProcessing_) {
+    iEvt.getByLabel("puJetMva","full53xId",puJetIdFlag);
+    iEvt.getByLabel("puJetMva","full53xDiscriminant",puJetIdMVA);
+  }
 
   //OLD  Handle<ValueMap<StoredPileupJetIdentifier> > jets;
   //OLD  iEvt.getByLabel("puJetId",jets);
@@ -320,9 +324,11 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
     ijet->addUserFloat("ptDJet", ptDJet);
     ijet->addUserFloat("RMSJet", rmsCandJet);
 
-    // MVA PU information
-    ijet->addUserFloat("puJetIdMVA",(*puJetIdMVA)[jetRef]);
-    ijet->addUserInt("puJetIdFlag",(*puJetIdFlag)[jetRef]);
+    // MVA PU information... not available for subjets
+    if (!subjetProcessing_) {
+      ijet->addUserFloat("puJetIdMVA",(*puJetIdMVA)[jetRef]);
+      ijet->addUserInt("puJetIdFlag",(*puJetIdFlag)[jetRef]);
+    }
 
     // Testing MC: if requested
 

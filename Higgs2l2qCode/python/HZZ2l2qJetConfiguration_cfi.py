@@ -141,25 +141,54 @@ jetBProbabilityBJetTagsCA8CHSprunedSubjets.tagInfos = cms.VInputTag(cms.InputTag
 
 btaggingJPCA8CHSprunedSubjets=cms.Sequence(jetProbabilityBJetTagsCA8CHSprunedSubjets + jetBProbabilityBJetTagsCA8CHSprunedSubjets)
 
-patJetsCA8CHSprunedSubjets = patJets.clone()
-patJetsCA8CHSprunedSubjets.jetSource = cms.InputTag('ca8PFJetsCHSpruned','SubJets')
-patJetsCA8CHSprunedSubjets.addGenJetMatch = False
-patJetsCA8CHSprunedSubjets.addGenPartonMatch = False
-patJetsCA8CHSprunedSubjets.addJetCharge = False
-patJetsCA8CHSprunedSubjets.embedCaloTowers = False
-patJetsCA8CHSprunedSubjets.embedPFCandidates = False
-patJetsCA8CHSprunedSubjets.addAssociatedTracks = False
-patJetsCA8CHSprunedSubjets.addBTagInfo = True
-patJetsCA8CHSprunedSubjets.addDiscriminators = True
-patJetsCA8CHSprunedSubjets.addJetID = False
-patJetsCA8CHSprunedSubjets.tagInfoSources = cms.VInputTag(cms.InputTag("secondaryVertexTagInfosCA8CHSprunedSubjets"),cms.InputTag("impactParameterTagInfosCA8CHSprunedSubjets"))
-patJetsCA8CHSprunedSubjets.trackAssociationSource = cms.InputTag("ca8CHSprunedSubjetsJetTracksAssociatorAtVertex")
-patJetsCA8CHSprunedSubjets.discriminatorSources = cms.VInputTag(cms.InputTag("combinedSecondaryVertexBJetTagsCA8CHSprunedSubjets"),cms.InputTag("jetProbabilityBJetTagsCA8CHSprunedSubjets"),cms.InputTag("jetBProbabilityBJetTagsCA8CHSprunedSubjets"))
-patJetsCA8CHSprunedSubjets.getJetMCFlavour = False
-patJetsCA8CHSprunedSubjets.addJetCorrFactors = False
+patJetsCA8CHSprunedSubjetsOrig = patJets.clone()
+patJetsCA8CHSprunedSubjetsOrig.jetSource = cms.InputTag('ca8PFJetsCHSpruned','SubJets')
+patJetsCA8CHSprunedSubjetsOrig.addGenJetMatch = False
+patJetsCA8CHSprunedSubjetsOrig.addGenPartonMatch = False
+patJetsCA8CHSprunedSubjetsOrig.addJetCharge = False
+patJetsCA8CHSprunedSubjetsOrig.embedCaloTowers = False
+patJetsCA8CHSprunedSubjetsOrig.embedPFCandidates = False
+patJetsCA8CHSprunedSubjetsOrig.addAssociatedTracks = True
+patJetsCA8CHSprunedSubjetsOrig.addBTagInfo = True
+patJetsCA8CHSprunedSubjetsOrig.addDiscriminators = True
+patJetsCA8CHSprunedSubjetsOrig.addJetID = True
+patJetsCA8CHSprunedSubjetsOrig.tagInfoSources = cms.VInputTag(cms.InputTag("secondaryVertexTagInfosCA8CHSprunedSubjets"),cms.InputTag("impactParameterTagInfosCA8CHSprunedSubjets"))
+patJetsCA8CHSprunedSubjetsOrig.trackAssociationSource = cms.InputTag("ca8CHSprunedSubjetsJetTracksAssociatorAtVertex")
+patJetsCA8CHSprunedSubjetsOrig.discriminatorSources = cms.VInputTag(cms.InputTag("combinedSecondaryVertexBJetTagsCA8CHSprunedSubjets"),cms.InputTag("jetProbabilityBJetTagsCA8CHSprunedSubjets"),cms.InputTag("jetBProbabilityBJetTagsCA8CHSprunedSubjets"))
+patJetsCA8CHSprunedSubjetsOrig.getJetMCFlavour = True
+patJetsCA8CHSprunedSubjetsOrig.addJetCorrFactors = False
+patJetsCA8CHSprunedSubjetsOrig.JetPartonMapSource = cms.InputTag("patJetFlavourAssociationSubjets")
+
+# In order to make the jet flavour we need to add two modules
+
+patJetPartonAssociationSubjets = cms.EDProducer("JetPartonMatcher",
+                                                jets    = cms.InputTag('ca8PFJetsCHSpruned','SubJets'),
+                                                #cms.InputTag("patJetsCA8CHSprunedSubjetsOrig"),
+                                                partons = cms.InputTag("patJetPartonsPFJetsAK5"),
+                                                coneSizeToAssociate = cms.double(0.3),
+                                                )
+
+patJetFlavourAssociationSubjets = cms.EDProducer("JetFlavourIdentifier",
+                                                 srcByReference    = cms.InputTag("patJetPartonAssociationSubjets"),
+                                                 physicsDefinition = cms.bool(False)
+                                                 )
+
+
+# In order to rpoduce the UserData we have to call the following:
+
+patJetsCA8CHSprunedSubjets = cms.EDProducer(
+        'PFJetUserData',
+        JetInputCollection=cms.untracked.InputTag("patJetsCA8CHSprunedSubjetsOrig"),
+        Verbosity=cms.untracked.bool(False),
+        SubjetProcessing=cms.untracked.bool(True)
+        )
+
 
 jetSubstructuresSequence += btaggingCA8CHSprunedSubjets
 jetSubstructuresSequence += btaggingJPCA8CHSprunedSubjets
+jetSubstructuresSequence += patJetPartonAssociationSubjets
+jetSubstructuresSequence += patJetFlavourAssociationSubjets
+jetSubstructuresSequence += patJetsCA8CHSprunedSubjetsOrig
 jetSubstructuresSequence += patJetsCA8CHSprunedSubjets
 # #OLD jetSubstructuresEventContent+=['keep *_patJetsCA8CHSprunedSubjets_*_*']
 

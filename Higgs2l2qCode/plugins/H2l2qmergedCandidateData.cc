@@ -197,6 +197,11 @@ void H2l2qmergedCandidateData::produce( Event & evt, const EventSetup & ) {
       const pat::Jet & subjet1 = dynamic_cast<const pat::Jet &>(*(subjet1ref));
       const Candidate * subjet2ref = prunedJet->daughter(1);
       const pat::Jet & subjet2 = dynamic_cast<const pat::Jet &>(*(subjet2ref));
+
+//      cout<<"Testing-merged: "<<prunedJet->pt()<<" "<<prunedJet->partonFlavour()<<endl;
+//      cout<<"Testing-subjets "<<subjet1.pt()<<" "<<subjet1.eta()<<endl<<" Flav: "<<subjet1.partonFlavour()<<" isTaggable: "<<subjet1.userInt("isTaggable")<<endl;
+//      cout<<"              "<<subjet2.pt()<<" "<<subjet2.eta()<<endl<<" Flav: "<<" "<<subjet2.partonFlavour()<<" isTaggable: "<<subjet2.userInt("isTaggable")<<endl;
+      
       
       //OLDstd::cout << "Subjet 1 btags: " << std::endl;
       //OLDstd::vector<std::pair<std::string, float> > btaginfo = subjet1.getPairDiscri();
