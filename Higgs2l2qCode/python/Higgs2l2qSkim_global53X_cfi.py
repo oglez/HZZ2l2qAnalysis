@@ -323,42 +323,77 @@ process.combinatorialSequence = cms.Sequence(
 process.p += process.combinatorialSequence
 process.p += getattr(process,"postPathCounter")
 
+# We want to have some checking on the total-kinematics check
+# performed on MC (for checking whther the sample needs the filter)
+
+if Hzz2l2qSetup.runOnMC:
+    process.ciematKinematicsTest = cms.EDProducer("CiematKinematicsTest",
+                                                  src = cms.InputTag("genParticles")
+                                                  )
+    process.p += process.ciematKinematicsTest
+
 # event cleaning (in tagging mode, no event rejected)
 process.load('CMGTools.Common.PAT.addFilterPaths_cff')
 
-del process.EcalDeadCellTriggerPrimitiveFilterPath
-process.p += process.EcalDeadCellTriggerPrimitiveFilter
-del process.hcalLaserEventFilterPath
-process.p += process.hcalLaserEventFilter
-del process.trackingFailureFilterPath
-process.p += process.trackingFailureSequence
-del process.CSCTightHaloFilterPath
-process.p += process.CSCTightHaloFilter
-del process.HBHENoiseFilterPath
-process.p += process.HBHENoiseFilter
-del process.eeBadScFilterPath
-process.p += process.eeBadScFilter
-del process.primaryVertexFilterPath
-process.p += process.primaryVertexFilter
-del process.noscrapingFilterPath
-process.p += process.noscraping
-del process.ecalLaserFilterPath
-process.p += process.ecalLaserCorrFilter
-del process.trkPOGFiltersPath
-process.p += process.trkPOGFiltersSequence
-
-del process.totalKinematicsFilterPath
+# The clean-up are run as indepedent paths (and bits stored
+# as trigger results in PAT (*_TriggerResults_*_PAT)
+process.fullPath = cms.Schedule(
+    process.p
+    ,process.EcalDeadCellTriggerPrimitiveFilterPath
+    ,process.hcalLaserEventFilterPath
+    ,process.trackingFailureFilterPath
+    ,process.CSCTightHaloFilterPath
+    ,process.HBHENoiseFilterPath
+    ,process.eeBadScFilterPath
+    ,process.primaryVertexFilterPath
+    ,process.noscrapingFilterPath
+    ,process.ecalLaserFilterPath
+    ,process.trkPOGFiltersPath
+    )
+# Following are not to be used:
+#    ,process.metNoiseCleaningPath
+#    ,process.trackIsolationMakerFilterPath
+#   )
 del process.metNoiseCleaningPath
 del process.trackIsolationMakerFilterPath
 
+if Hzz2l2qSetup.applyCleanUpFilters:
+    # The clean-up filters are applied as part of the main path
+# #OLD   del process.EcalDeadCellTriggerPrimitiveFilterPath
+   process.p += process.EcalDeadCellTriggerPrimitiveFilter
+# #OLD   del process.hcalLaserEventFilterPath
+   process.p += process.hcalLaserEventFilter
+# #OLD   del process.trackingFailureFilterPath
+   process.p += process.trackingFailureSequence
+# #OLD   del process.CSCTightHaloFilterPath
+   process.p += process.CSCTightHaloFilter
+# #OLD   del process.HBHENoiseFilterPath
+   process.p += process.HBHENoiseFilter
+# #OLD   del process.eeBadScFilterPath
+   process.p += process.eeBadScFilter
+# #OLD   del process.primaryVertexFilterPath
+   process.p += process.primaryVertexFilter
+# #OLD   del process.noscrapingFilterPath
+   process.p += process.noscraping
+# #OLD   del process.ecalLaserFilterPath
+   process.p += process.ecalLaserCorrFilter
+# #OLD   del process.trkPOGFiltersPath
+   process.p += process.trkPOGFiltersSequence
+
+# #OLD   del process.totalKinematicsFilterPath
+# #OLD   del process.metNoiseCleaningPath
+# #OLD   del process.trackIsolationMakerFilterPath
+
 # This is needed only for Madgraph MC... but I think it is harmless
 # for the rest.
+# Please note that we run it always in path mode
 if Hzz2l2qSetup.runOnMC:
-    #process.fullPath.append(process.totalKinematicsFilterPath)
-    process.p += process.totalKinematicsFilter
-#else:
-    #del process.totalKinematicsFilterPath
-
+    process.fullPath.append(process.totalKinematicsFilterPath)
+    #process.p += process.totalKinematicsFilter
+    # The default value does not work because it kills the massless problem
+    # in Madgraph
+    process.totalKinematicsFilter.tolerance = cms.double(5)
+    
 # For signal:
 
 if (Hzz2l2qSetup.higgsMass>0):
@@ -446,11 +481,11 @@ process.out.outputCommands.extend([
     ### for HLT selection
     'keep edmTriggerResults_TriggerResults_*_HLT'])
 
-
-
 # additional products for event cleaning
 process.out.outputCommands.extend(['keep *_TriggerResults_*_PAT'])
 process.out.outputCommands.extend(['keep edmMergeableCounter_*_*_*'])
+process.out.outputCommands.extend(['keep *_ciematKinematicsTest_*_*'])
+
 
 # Adding the CA8 information
 process.out.outputCommands.extend(['keep *_ca8PFJetsCHSpruned_SubJets_*'])

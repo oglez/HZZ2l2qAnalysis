@@ -14,4 +14,8 @@ usingfiles = []
 lhcEnergy = "8TeV"
 higgsMass = -1   # Set to a mass in cfg for signal, e.g. Higgs2l2qSkim_Hpowheg_cfg_53.py
 
+# Parameters on what to do with the clean-up filters
+
+applyCleanUpFilters = False
+
 #########################################################################
