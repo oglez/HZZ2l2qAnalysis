@@ -155,9 +155,9 @@ patJetsCA8CHSprunedSubjetsOrig.addJetID = True
 patJetsCA8CHSprunedSubjetsOrig.tagInfoSources = cms.VInputTag(cms.InputTag("secondaryVertexTagInfosCA8CHSprunedSubjets"),cms.InputTag("impactParameterTagInfosCA8CHSprunedSubjets"))
 patJetsCA8CHSprunedSubjetsOrig.trackAssociationSource = cms.InputTag("ca8CHSprunedSubjetsJetTracksAssociatorAtVertex")
 patJetsCA8CHSprunedSubjetsOrig.discriminatorSources = cms.VInputTag(cms.InputTag("combinedSecondaryVertexBJetTagsCA8CHSprunedSubjets"),cms.InputTag("jetProbabilityBJetTagsCA8CHSprunedSubjets"),cms.InputTag("jetBProbabilityBJetTagsCA8CHSprunedSubjets"))
-patJetsCA8CHSprunedSubjetsOrig.getJetMCFlavour = True
+patJetsCA8CHSprunedSubjetsOrig.getJetMCFlavour = False
 patJetsCA8CHSprunedSubjetsOrig.addJetCorrFactors = False
-patJetsCA8CHSprunedSubjetsOrig.JetPartonMapSource = cms.InputTag("patJetFlavourAssociationSubjets")
+#patJetsCA8CHSprunedSubjetsOrig.JetPartonMapSource = cms.InputTag("patJetFlavourAssociationSubjets")
 
 # In order to make the jet flavour we need to add two modules
 
@@ -174,7 +174,7 @@ patJetFlavourAssociationSubjets = cms.EDProducer("JetFlavourIdentifier",
                                                  )
 
 
-# In order to rpoduce the UserData we have to call the following:
+# In order to produce the UserData we have to call the following:
 
 patJetsCA8CHSprunedSubjets = cms.EDProducer(
         'PFJetUserData',
@@ -186,8 +186,13 @@ patJetsCA8CHSprunedSubjets = cms.EDProducer(
 
 jetSubstructuresSequence += btaggingCA8CHSprunedSubjets
 jetSubstructuresSequence += btaggingJPCA8CHSprunedSubjets
-jetSubstructuresSequence += patJetPartonAssociationSubjets
-jetSubstructuresSequence += patJetFlavourAssociationSubjets
+if Hzz2l2qSetup.runOnMC:
+    jetSubstructuresSequence += patJetPartonAssociationSubjets
+    jetSubstructuresSequence += patJetFlavourAssociationSubjets
+
+    patJetsCA8CHSprunedSubjetsOrig.getJetMCFlavour = True
+    patJetsCA8CHSprunedSubjetsOrig.JetPartonMapSource = cms.InputTag("patJetFlavourAssociationSubjets")
+
 jetSubstructuresSequence += patJetsCA8CHSprunedSubjetsOrig
 jetSubstructuresSequence += patJetsCA8CHSprunedSubjets
 # #OLD jetSubstructuresEventContent+=['keep *_patJetsCA8CHSprunedSubjets_*_*']

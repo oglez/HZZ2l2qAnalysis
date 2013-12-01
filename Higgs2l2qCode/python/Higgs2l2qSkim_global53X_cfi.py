@@ -393,7 +393,10 @@ if Hzz2l2qSetup.runOnMC:
     # The default value does not work because it kills the massless problem
     # in Madgraph
     process.totalKinematicsFilter.tolerance = cms.double(5)
-    
+
+else:
+    del process.totalKinematicsFilterPath
+
 # For signal:
 
 if (Hzz2l2qSetup.higgsMass>0):
