@@ -6,14 +6,14 @@ import os
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #add the L2L3Residual corrections only for data
-if Hzz2l2qSetup.runOnMC:#MC
+if Hzz2l2qSetup.runOnMC: #MC
     jetCorrections=['L1FastJet','L2Relative','L3Absolute']
 
     # Setting the global tag for MC
     process.GlobalTag.globaltag = 'START53_V27::All'
 
         
-else:#Data
+else: #Data
     jetCorrections=['L1FastJet','L2Relative','L3Absolute','L2L3Residual']
 
     # Setting the global tag for data
@@ -160,6 +160,108 @@ removeUseless( "tauGenJetsSelectorAllHadrons" )
 removeUseless( "tauGenJetMatch" )
 removeUseless( "patHPSPFTauDiscrimination" )
 
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueCharged04PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueChargedAll04PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueGamma04PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueNeutral04PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValuePU04PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueCharged04NoPFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueChargedAll04NoPFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueGamma04NoPFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueNeutral04NoPFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValuePU04NoPFIdPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueCharged03PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueChargedAll03PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueGamma03PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueNeutral03PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValuePU03PFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueCharged03NoPFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueChargedAll03NoPFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueGamma03NoPFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueNeutral03NoPFIdPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValuePU03NoPFIdPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.pfIsolatedElectronsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfElectronsPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.pfElectronsFromVertexPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfSelectedElectronsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoDepositChargedPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoDepositChargedAllPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoDepositGammaPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoDepositNeutralPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoDepositPUPFJetsAK5)
+# #Needed for pfJetsPFJetsAK5 process.patPF2PATSequencePFJetsAK5.remove(process.pfNoElectronPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoDepositChargedPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoDepositChargedAllPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoDepositGammaPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoDepositNeutralPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoDepositPUPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueCharged03PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueChargedAll03PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueGamma03PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueNeutral03PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueGammaHighThreshold03PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueNeutralHighThreshold03PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValuePU03PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueCharged04PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueChargedAll04PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueGamma04PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueNeutral04PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueGammaHighThreshold04PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueNeutralHighThreshold04PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValuePU04PFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfIsolatedMuonsPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.pfMuonsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllMuonsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfMuonsFromVertexPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfSelectedMuonsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfNoMuonPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllElectronsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfNoElectronPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllNeutralHadronsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllChargedHadronsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllPhotonsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllChargedParticlesPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfPileUpAllChargedParticlesPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllNeutralHadronsAndPhotonsPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.pfNoJet)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfPileUpPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfNoPileUpPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfPileUpIsoPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfNoPileUpIsoPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.selectedPatPFParticlesPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.countPatLeptonsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.countPatJetsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.countPatPFParticlesPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.countPatPFParticlesPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.pfNoJet)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfNoJetPFJetsAK5)
+# Needed for MET process.patPF2PATSequencePFJetsAK5.remove(process.pfMETPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfPileUpIsoPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfNoPileUpIsoPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllNeutralHadronsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllChargedHadronsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllPhotonsPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllChargedParticlesPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfPileUpAllChargedParticlesPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfAllNeutralHadronsAndPhotonsPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.patPFParticlesPFJetsAK5)
+# Needed for MET process.patPF2PATSequencePFJetsAK5.remove(process.patPFMetPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.pfCandMETcorrPFJetsAK5)
+# Needed for MET process.patPF2PATSequencePFJetsAK5.remove(process.patType1CorrectedPFMetPFJetsAK5)
+process.patPF2PATSequencePFJetsAK5.remove(process.patType1p2CorrectedPFMetPFJetsAK5)
+# My main MET process.patPF2PATSequencePFJetsAK5.remove(process.patMETsPFJetsAK5)
+
+process.patPF2PATSequencePFJetsAK5.remove(process.selectedPatCandidateSummaryPFJetsAK5)
 
 #########################################################
 
@@ -186,6 +288,14 @@ getattr(process,"patJets"+postfixAK5).tagInfoSources  = cms.VInputTag(
     cms.InputTag("secondaryVertexTagInfosAOD"+postfixAK5),
     cms.InputTag("impactParameterTagInfosAOD"+postfixAK5)
     )
+
+getattr(process,"pfJets"+postfixAK5).src = cms.InputTag("particleFlow")
+#getattr(process,"pfNoJet"+postfixAK5).bottomCollection = cms.InputTag("particleFlow")
+
+#print "CHECK ",getattr(process,"pfJets"+postfixAK5).src
+#print "CHECK-2 ",getattr(process,"pfNoPileUp"+postfixAK5).topCollection
+#print "CHECK-3 ",getattr(process,"pfNoPileUp"+postfixAK5).bottomCollection
+
 ### non default embedding of AOD items for default patJets
 getattr(process,"patJets"+postfixAK5).embedCaloTowers = False
 getattr(process,"patJets"+postfixAK5).embedPFCandidates = True
@@ -265,16 +375,26 @@ process.p.replace(getattr(process,"selectedPatJets"+postfixAK5),getattr(process,
 #process.p.replace(getattr(process,"patMETs"+postfixAK5),
 #                  getattr(process,"pfJetMETcorr"+postfixAK5)*getattr(process,"pfType1CorrectedMet"+postfixAK5)*getattr(process,"patMETs"+postfixAK5))
 
-########## insert the PFMET significance calculation #############
+# #OLD ########## insert the PFMET significance calculation #############
+# #OLD 
+# #OLD process.load("CMGTools.Common.PAT.MetSignificance_cff")
+# #OLD 
+# #OLD setattr(process,"PFMETSignificance"+postfixAK5, process.pfMetSignificance.clone())
+# #OLD #getattr(process,"patDefaultSequence"+postfixAK5).insert(getattr(process,"patDefaultSequence"+postfixAK5).index(getattr(process,"patMETs"+postfixAK5))+1,getattr(process,"PFMETSignificance"+postfixAK5))
+# #OLD process.p.replace(getattr(process,"patMETs"+postfixAK5),
+# #OLD                   getattr(process,"patMETs"+postfixAK5)*getattr(process,"PFMETSignificance"+postfixAK5))
 
-process.load("CMGTools.Common.PAT.MetSignificance_cff")
+# Needed for IsoDeposits process.p.remove(process.pfPileUpIso)
+# Needed for IsoDeposits process.p.remove(process.pfNoPileUpIso)
+# Needed for IsoDeposits process.p.remove(process.pfAllNeutralHadrons)
+# Needed for IsoDeposits process.p.remove(process.pfAllChargedHadrons)
+# Needed for IsoDeposits process.p.remove(process.pfAllPhotons)
+# Needed for IsoDeposits process.p.remove(process.pfAllChargedParticles)
+# Needed for IsoDeposits process.p.remove(process.pfAllPhotons)
+# Needed for IsoDeposits process.p.remove(process.pfPileUpAllChargedParticles)
+process.p.remove(process.pfAllNeutralHadronsAndPhotons)
 
-setattr(process,"PFMETSignificance"+postfixAK5, process.pfMetSignificance.clone())
-#getattr(process,"patDefaultSequence"+postfixAK5).insert(getattr(process,"patDefaultSequence"+postfixAK5).index(getattr(process,"patMETs"+postfixAK5))+1,getattr(process,"PFMETSignificance"+postfixAK5))
-process.p.replace(getattr(process,"patMETs"+postfixAK5),
-                  getattr(process,"patMETs"+postfixAK5)*getattr(process,"PFMETSignificance"+postfixAK5))
-
-
+process.p.remove(process.pfNoJet)
 
 # Combinatorial process:
 
@@ -415,7 +535,7 @@ if (Hzz2l2qSetup.higgsMass>0):
 #from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning, patTriggerEventContent, patTriggerStandAloneEventContent
 
 process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string(os.getenv('OGCMS_ROOTFILE','h2l2qSkimData.root')),
+#                               fileName = cms.untracked.string(os.getenv('OGCMS_ROOTFILE','h2l2qSkimData.root')),
                                SelectEvents = cms.untracked.PSet(
                                    SelectEvents = cms.vstring('p')
                                    ),
@@ -423,6 +543,10 @@ process.out = cms.OutputModule("PoolOutputModule",
                                    'drop *_*_*_*',
                                    )
                                )
+if Hzz2l2qSetup.runOnMC: #MC
+    process.out.fileName = cms.untracked.string(os.getenv('OGCMS_ROOTFILE','h2l2qSkimMC.root'))
+else: #Data
+    process.out.fileName = cms.untracked.string(os.getenv('OGCMS_ROOTFILE','h2l2qSkimData.root'))
 
 process.out.dropMetaData = cms.untracked.string("DROPPED")
 

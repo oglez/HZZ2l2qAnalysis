@@ -14,7 +14,7 @@ def setupPatElectrons (process):
 
     #from PhysicsTools.PatAlgos.tools.pfTools import *
     
-    # We use electrons from GSF
+    # We use electrons from GSF, not PF.
     process.patElectrons.embedTrack = True
     process.patElectrons.pfElectronSource = 'particleFlow'
 
@@ -25,23 +25,24 @@ def setupPatElectrons (process):
     #############
     # setup recommended 0.3 cone for electron PF isolation
     process.patElectrons.isolationValues = cms.PSet(
-            pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFIdPFIso"),
-            pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFIdPFIso"),
-            pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFIdPFIso"),
-            pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFIdPFIso"),
-            pfPhotons = cms.InputTag("elPFIsoValueGamma03PFIdPFIso")
-            )
-    # OLD: I think these are nor needed... do massive testing
-    #process.patElectrons.isolationValuesNoPFId = cms.PSet(
-    #    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03NoPFIdPFIso"),
-    #    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03NoPFIdPFIso"),
-    #    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03NoPFIdPFIso"),
-    #    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03NoPFIdPFIso"),
-    #    pfPhotons = cms.InputTag("elPFIsoValueGamma03NoPFIdPFIso")
-    #    )
+         pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFIdPFIso"),
+         pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFIdPFIso"),
+         pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFIdPFIso"),
+         pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFIdPFIso"),
+         pfPhotons = cms.InputTag("elPFIsoValueGamma03PFIdPFIso")
+        )
+    # Even for the electrons that are no-pfId
+    process.patElectrons.isolationValuesNoPFId = cms.PSet(
+         pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03NoPFIdPFIso"),
+         pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03NoPFIdPFIso"),
+         pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03NoPFIdPFIso"),
+         pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03NoPFIdPFIso"),
+         pfPhotons = cms.InputTag("elPFIsoValueGamma03NoPFIdPFIso")
+        )
+    
     #############
     #
-    # Using electron regression for momentum: TEST
+    # Using electron regression for momentum:
     #
     process.load("EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi")
     process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('patElectrons')
@@ -49,25 +50,18 @@ def setupPatElectrons (process):
     #process.eleRegressionEnergy.correctionsType
 
     # It seems that the instructions were just to run the regression, but that is
-    # not what we want (I think)... we want the following one:
+    # not what we want (I think)... we also need the following one:
 
     import HZZ2l2qAnalysis.Higgs2l2qCode.Hzz2l2qSetup_cfi as Hzz2l2qSetup
     
     process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
+    # For testing: process.calibratedPatElectrons.inputPatElectronsTag = cms.InputTag("patElectrons")
+    # Please note the input collection is eleRegressionEnergy that does NOT
+    # apply the correction, but attach it to the electron as "RegEnergy".
     if Hzz2l2qSetup.runOnMC:  # For MC need to change defauls
         process.calibratedPatElectrons.isMC = Hzz2l2qSetup.runOnMC
         process.calibratedPatElectrons.inputDataset = cms.string("Summer12_LegacyPaper")
         process.calibratedPatElectrons.lumiRatio = 0.607
-
-# #OLD    # Electron sequence:
-# #OLD
-# #OLD    process.stdElectronSeq = cms.Sequence(
-# #OLD            process.pfParticleSelectionSequence +
-# #OLD            process.eleIsoSequence +
-# #OLD            process.makePatElectrons +
-# #OLD            process.eleRegressionEnergy +
-# #OLD            process.selectedPatElectrons
-# #OLD            )
 
     # Classic Electrons with UserData
     process.userDataSelectedElectrons = cms.EDProducer(
@@ -105,11 +99,34 @@ def setupPatElectrons (process):
         cut = cms.string("(userInt('isIsolated')==1)")
         # #OLD    cut = cms.string("electronID('eidVBTFCom95') == 7")
         )
+    
+    # Note we do not need the R=0.4 isolation for electrons:
+    process.eleIsoSequence.remove(process.elPFIsoValueCharged04PFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValueChargedAll04PFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValueGamma04PFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValueNeutral04PFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValuePU04PFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValueCharged04NoPFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValueChargedAll04NoPFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValueGamma04NoPFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValueNeutral04NoPFIdPFIso)
+    process.eleIsoSequence.remove(process.elPFIsoValuePU04NoPFIdPFIso)
+
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueCharged04PFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueChargedAll04PFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueGamma04PFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueNeutral04PFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValuePU04PFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueCharged04NoPFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueChargedAll04NoPFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueGamma04NoPFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValueNeutral04NoPFIdPFJetsAK5)
+# #OLD    process.patPF2PATSequencePFJetsAK5.remove(process.elPFIsoValuePU04NoPFIdPFJetsAK5)
 
     # Electron sequence:
 
     process.stdElectronSeq = cms.Sequence(
-        process.pfParticleSelectionSequence +
+# #in PF2PAT        process.pfParticleSelectionSequence +
         process.eleIsoSequence +
         process.makePatElectrons +
         process.eleRegressionEnergy +

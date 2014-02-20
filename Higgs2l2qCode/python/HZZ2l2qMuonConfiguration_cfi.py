@@ -95,8 +95,16 @@ def setupPatMuons (process):
             "pt > 18 && abs(eta) < 2.4"
         )
 
-    # Sequence for muons:
+    # Note we do not need the R=0.3 isolation for muons:
+    process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueCharged03PFIso)
+    process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueChargedAll03PFIso)
+    process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueGamma03PFIso)
+    process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueNeutral03PFIso)
+    process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueGammaHighThreshold03PFIso)
+    process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValueNeutralHighThreshold03PFIso)
+    process.patPF2PATSequencePFJetsAK5.remove(process.muPFIsoValuePU03PFIso)
 
+    # Sequence for muons:
     process.stdMuonSeq = cms.Sequence (
         process.pfParticleSelectionSequence +
         process.muIsoSequence +

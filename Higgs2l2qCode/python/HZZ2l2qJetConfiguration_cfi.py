@@ -97,6 +97,12 @@ ca8PFJetsCHS.src = pfNoPileUpSrc
 ca8PFJetsCHSpruned.src = pfNoPileUpSrc
 # #OLD jetSubstructuresEventContent+=['keep *_ca8PFJetsCHSpruned_SubJets_*']
 # #OLD jetSubstructuresEventContent+=['keep *_ca8GenJetsNoNu_*_*']
+# For data the corrections are different:
+if (not Hzz2l2qSetup.runOnMC): #Data 
+    patJetCorrFactorsCA8CHS.levels = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
+    patJetCorrFactorsCA8CHSpruned.levels = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
+
+# Selecting the jets we like... this might be tightened, if someone makes serious studies
 
 selectedPatJetsCA8CHS.cut = cms.string('pt > 25.0 && abs(eta) < 2.4 && getPFConstituents().size > 1')
 

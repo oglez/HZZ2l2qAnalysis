@@ -210,6 +210,12 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
 //OLD     cout << "MIERDA jet " << i << " pt " << patjet.pt() << " eta " << patjet.eta() << " PU JetID MVA " << mva <<endl; 
 //OLD   }
 
+  PFJetIDSelectionFunctor jetIDLoose(PFJetIDSelectionFunctor::FIRSTDATA,PFJetIDSelectionFunctor::LOOSE);
+  PFJetIDSelectionFunctor jetIDTight(PFJetIDSelectionFunctor::FIRSTDATA,PFJetIDSelectionFunctor::TIGHT);
+  // Esto es de cohna... no hay medium!!! Ese codigo que usaba Fabozzi es viejo, viejo... pero bueno
+  // a la espera de otro, para Loose funciona.
+  pat::strbitset ret = jetIDLoose.getBitTemplate();
+
   // Initial setup for beta/beta* variables
   _verticesZ.clear();
   _mainVertex=-1;
@@ -324,7 +330,21 @@ void PFJetUserData::produce(edm::Event &iEvt,  const edm::EventSetup &iSetup){
     ijet->addUserFloat("ptDJet", ptDJet);
     ijet->addUserFloat("RMSJet", rmsCandJet);
 
-    // MVA PU information... not available for subjets
+    //OLD cout<<"MIERDA "<<jetLabel_.label()<<" "<<ijet->jecSetsAvailable()<<" "<<ijet->currentJECLevel()<<endl;
+
+    // Jet ID using the 0-3 code for no, loose, medium and tight
+    if (ijet->jecSetsAvailable()) {  // Stupid bug for using obsolete code... not valid for subjets
+      int jetid=0;  // No id'ed
+      if (jetIDLoose(*ijet,ret)) {
+	jetid=1;  // Loose
+	if (jetIDTight(*ijet,ret)) {
+	  jetid=3;  // Tight
+	}
+      }
+      ijet->addUserInt("jetID",jetid);
+    }
+
+    // Mva PU information... not available for subjets
     if (!subjetProcessing_) {
       ijet->addUserFloat("puJetIdMVA",(*puJetIdMVA)[jetRef]);
       ijet->addUserInt("puJetIdFlag",(*puJetIdFlag)[jetRef]);
@@ -441,6 +461,7 @@ void PFJetUserData::computeBeta (const pat::Jet &jjet,float *beta,float *betasta
     if (*beta>0) *beta /= totalpt;
     if (*betastar>0) *betastar /= totalpt;
   }  
+  else (*beta)=1;  // By convention!
 
   //TEST  std::cout<<"JET: "<<jjet.pt()<<" "<<jjet.rapidity()<<" "<<jjet.phi()<<" "<<*beta<<" "<<*betastar<<std::endl;
 }

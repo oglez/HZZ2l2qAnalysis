@@ -181,9 +181,20 @@ void H2l2qCandidateData::produce( Event & evt, const EventSetup & ) {
     jjdr = deltaR(zDauRefj0->eta(), zDauRefj0->phi(), zDauRefj1->eta(), zDauRefj1->phi() );
 
     // store jetID for Z->jj daughters
-    j0LooseID = (float) jetIDLoose( j0, ret );
-    j1LooseID = (float) jetIDLoose( j1, ret );
+    j0LooseID = (float) (j0.userInt("jetID")>0); //OLD jetIDLoose( j0, ret );
+    j1LooseID = (float) (j1.userInt("jetID")>0); //OLD jetIDLoose( j1, ret );
    
+    //cout<<"JODER "<<j0.pt()<<" "<<j0.eta()<<" "<<j0.phi()<<" "<<j0LooseID<<endl;//" "<<j0.jecSetsAvailable()<<" "<<j0.currentJECLevel()<<endl;
+    //cout<<"JODER "<<j1.pt()<<" "<<j1.eta()<<" "<<j1.phi()<<" "<<j1LooseID<<endl;//" "<<j1.jecSetsAvailable()<<" "<<j1.currentJECLevel()<<endl;
+
+    // Checks using the old way (to be removed, in case)
+    if (j0LooseID!=(float) jetIDLoose(j0,ret)) {
+      cerr<<"ERROR: Problems getting the ID of a j0 jet: "<<jetIDLoose(j0,ret)<<" "<<j0.userInt("jetID")<<" "<<j0.hasUserInt("jetID")<<endl;
+    }
+    if (j1LooseID!=(float) jetIDLoose(j1,ret)) {
+      cerr<<"ERROR: Problems getting the ID of a j1 jet: "<<jetIDLoose(j1,ret)<<" "<<j1.userInt("jetID")<<" "<<j1.hasUserInt("jetID")<<endl;
+    }
+
     if(j0.pt() < j1.pt() ){      
       neutralEmEnergy = j0.neutralEmEnergy();
       chargedEmEnergy = j0.chargedEmEnergy() ;

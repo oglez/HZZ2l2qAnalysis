@@ -10,7 +10,7 @@ import HZZ2l2qAnalysis.Higgs2l2qCode.Hzz2l2qSetup_cfi as Hzz2l2qSetup
 Hzz2l2qSetup.runOnMC = False
 
 #Hzz2l2qSetup.usingevents = 4999
-#Hzz2l2qSetup.usingevents = 99
+#Hzz2l2qSetup.usingevents = 2000
 
 
 # Files to run over:
@@ -18,11 +18,32 @@ Hzz2l2qSetup.runOnMC = False
 Hzz2l2qSetup.usingfiles = [
 
     # data: ee
-    'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/FEAA6EC6-DF8F-E211-B96F-00261894392D.root'
-    ,'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/FC706CB1-1490-E211-9274-003048FFCB96.root'
-    ,'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/F6ED4298-D18F-E211-BC8C-003048FFD770.root'
-    ,'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/F0319D12-E78F-E211-9743-002618943856.root'
-    ,'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/D6DE85AC-9A8F-E211-AAB7-00248C65A3EC.root'    
+#     'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/FEAA6EC6-DF8F-E211-B96F-00261894392D.root'
+#     ,'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/FC706CB1-1490-E211-9274-003048FFCB96.root'
+#     ,'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/F6ED4298-D18F-E211-BC8C-003048FFD770.root'
+#     ,'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/F0319D12-E78F-E211-9743-002618943856.root'
+#     ,'file:/data1/oglez/spool/data2012d_22jan2013_ee_AOD537/D6DE85AC-9A8F-E211-AAB7-00248C65A3EC.root'    
+
+    'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/0032A48E-EA67-E211-AC23-0026189438BD.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/044F68C5-0F68-E211-AED1-0030486790A0.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/0A534E91-EA67-E211-B27A-003048678FA0.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/0E88DE7E-E867-E211-9E90-002590593902.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/2006A2D2-0968-E211-A330-00248C65A3EC.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/26587EA3-1A70-E211-9A2E-003048678F74.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/2C99E1AD-FA67-E211-A56A-00304867D446.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/3C96168B-EA67-E211-8204-003048678C3A.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/4CA4A581-0A68-E211-A598-00248C55CC7F.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/5CA02851-0B68-E211-A40C-003048FFD7A2.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/6C3EB2EA-0268-E211-ADF6-003048FFD728.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/76740D00-0268-E211-B273-002618943865.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/8281726B-EB67-E211-851D-002618943974.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/8EA338FF-0868-E211-9D48-0026189438E9.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/9839368B-2068-E211-B88D-0026189438B9.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/A47C74B6-EA67-E211-BBB5-003048D3C010.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/B417DB87-0768-E211-8151-00261894380B.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/C0C1CE9E-0568-E211-AFA2-003048678FA0.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/C84B85A5-3868-E211-8E19-0026189438FA.root'
+    ,'root://eoscms//eos/cms/store/caf/user/oglez/aod_537/data2012c_22j/D2020368-EC67-E211-90F9-003048F9EB46.root'
 
 # # En CIEMAT:
 #     'dcap://gaeds015.ciemat.es:22125/pnfs/ciemat.es/data/cms/prod/store/data/Run2012D/DoubleElectron/AOD/22Jan2013-v1/10002/B03E8149-2C90-E211-BB2E-003048678D86.root'
@@ -52,11 +73,11 @@ Hzz2l2qSetup.usingfiles = [
 #     ,'dcap://gaeds015.ciemat.es:22125/pnfs/ciemat.es/data/cms/prod/store/data/Run2012D/DoubleElectron/AOD/22Jan2013-v1/10002/BE64C620-8190-E211-9743-002618943946.root'
 #     ,'dcap://gaeds015.ciemat.es:22125/pnfs/ciemat.es/data/cms/prod/store/data/Run2012D/DoubleElectron/AOD/22Jan2013-v1/10002/BEB82F9D-5190-E211-ACC8-002618943963.root'
     
-   # data: mumu
-    ,'file:/data1/oglez/spool/data2012d_22jan2013_mumu_AOD537/FA55EDA0-3B84-E211-B731-00259073E406.root'
-    ,'file:/data1/oglez/spool/data2012d_22jan2013_mumu_AOD537/C2E5C34A-5484-E211-8623-E0CB4E19F95A.root'
-    ,'file:/data1/oglez/spool/data2012d_22jan2013_mumu_AOD537/A0280890-3184-E211-AC22-002590747E16.root'
-    ,'file:/data1/oglez/spool/data2012d_22jan2013_mumu_AOD537/48170530-2B84-E211-AFAA-90E6BA442EEB.root'
+#   # data: mumu
+#    ,'file:/data1/oglez/spool/data2012d_22jan2013_mumu_AOD537/FA55EDA0-3B84-E211-B731-00259073E406.root'
+#    ,'file:/data1/oglez/spool/data2012d_22jan2013_mumu_AOD537/C2E5C34A-5484-E211-8623-E0CB4E19F95A.root'
+#    ,'file:/data1/oglez/spool/data2012d_22jan2013_mumu_AOD537/A0280890-3184-E211-AC22-002590747E16.root'
+#    ,'file:/data1/oglez/spool/data2012d_22jan2013_mumu_AOD537/48170530-2B84-E211-AFAA-90E6BA442EEB.root'
 
 # En CIEMAT:
 #      ,'dcap://gaeds015.ciemat.es:22125/pnfs/ciemat.es/data/cms/prod/store/data/Run2012D/DoubleMuParked/AOD/22Jan2013-v1/30002/A0280890-3184-E211-AC22-002590747E16.root'
@@ -96,5 +117,49 @@ from HZZ2l2qAnalysis.Higgs2l2qCode.Higgs2l2qSkim_global53X_cfi import *
 
 # To activate the debug of candidates:
 # #process.p.replace(process.allhcand,process.allhcand*process.debugCandidates)
+
+# # Checking PAT objects using Oscar's validation tools:
+# process.validatePatElectrons = cms.EDAnalyzer('OGPatElectronValidationModule'
+#                                               #,src=cms.InputTag('calibratedPatElectrons')
+#                                               ,src=cms.InputTag('selectedPatElectrons')
+#                                               ,printInfo=cms.untracked.bool(True)
+#                                               )
+# 
+# process.p.replace(process.selectedPatElectrons,process.selectedPatElectrons*process.validatePatElectrons)
+# 
+# # Global checks using Oscar's validation tools:
+# process.globaldump = cms.EDAnalyzer('OGDumpEventsModule'
+#                                     ,vertexCollection=cms.untracked.InputTag('offlinePrimaryVertices')
+#                                     ,electronCollection=cms.untracked.InputTag('userDataSelectedElectrons')
+#                                     ,muonCollection=cms.untracked.InputTag('userDataSelectedMuons')
+#                                     ,jetCollections=cms.untracked.vstring('cleanPatJetsNoPUIsoLept'
+#                                                                           ,'cleanCA8JetsNoPUIsoLept'
+#                                                                           ,'patJetsCA8CHSprunedSubjetsOrig'
+#                                                                           )
+#                                     ,metProducer=cms.untracked.InputTag("metInfoProducer")
+#                                     )
+# 
+# process.metInfoProducer = cms.EDProducer('MetVariablesProducer'
+#                                          ,metTag = cms.InputTag("patMETsPFJetsAK5")
+#                                          ,t1CorrMetTag = cms.InputTag("dummy")
+#                                          )
+# process.p.replace(process.zee,process.metInfoProducer*process.globaldump*process.zee)
+# 
+# process.ciematMatching = cms.EDProducer('CiematJetVertexMatchingProducer'
+#                                         ,jetCollection=cms.string('customPFJetsNoPUSub')
+#                                         ,vertexCollection=cms.InputTag('goodvertices')
+#                                         )
+# process.ogJet = cms.EDProducer('OGPatJetStdVarsModule'
+#                                ,src=cms.InputTag('customPFJetsNoPUSub')
+#                                ,vertexJetMatching=cms.untracked.InputTag('ciematMatching')
+#                                #,vertexCollection=cms.untracked.InputTag('goodvertices')
+#                                )
+# 
+# process.cleanPatJetsNoPUIsoLept.src = cms.InputTag('ogJet')
+# 
+# process.goodvertices = cms.EDFilter('GoodVertexSelector',src=cms.InputTag('offlinePrimaryVertices'))
+# 
+# process.p.replace(process.customPFJetsNoPUSub,
+#                   process.customPFJetsNoPUSub*process.goodvertices*process.ciematMatching*process.ogJet)
 
 #########################################################################

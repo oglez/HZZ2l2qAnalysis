@@ -143,6 +143,11 @@ void Higgs2l2bElectronUserData::produce( Event & evt, const EventSetup & ) {
     float ecalIsoEle = el.dr03EcalRecHitSumEt();
     float hcalIsoEle = el.dr03HcalTowerSumEt();
 
+//    cout<<"MIERDA "//OLD <<std::setprecision(6)
+//        <<isEBEle<<" "<<ptEle<<" "<<etaEle<<" "<<dEtaInEle<<" "<<dPhiInEle<<" "<<sigmaIEtaIEtaEle<<" "<<hoeEle<<" "
+//        <<ooemoopEle<<" "<<dxyVtx<<" "<<dzVtx<<" "<<iso_chEle<<" "<<iso_emEle<<" "<<iso_nhEle<<" "<<hasMatchConv
+//        <<" "<<missHits<<" "<<rho<<endl;
+
     bool passVetoID = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, isEBEle, ptEle, etaEle,
 						  dEtaInEle, dPhiInEle, sigmaIEtaIEtaEle, hoeEle,
 						  ooemoopEle, dxyVtx, dzVtx, iso_chEle, iso_emEle, iso_nhEle, 

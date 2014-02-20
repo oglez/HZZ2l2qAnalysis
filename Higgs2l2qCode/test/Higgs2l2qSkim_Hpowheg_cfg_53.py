@@ -10,7 +10,7 @@ import HZZ2l2qAnalysis.Higgs2l2qCode.Hzz2l2qSetup_cfi as Hzz2l2qSetup
 Hzz2l2qSetup.lhcEnergy = "8TeV"
 Hzz2l2qSetup.higgsMass = 900
 
-#Hzz2l2qSetup.usingevents = 198
+# Hzz2l2qSetup.usingevents = 5198
 
 # Files to run over:
 
