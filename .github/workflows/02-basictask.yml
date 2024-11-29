@@ -9,6 +9,6 @@ jobs:
         run: |
           echo "Hello World!"
           cat /etc/os-release
-      - name:
-      - run: echo "Finished task"
+      - name: my-final-step
+        run: echo "Finished task"
         shell: bash
