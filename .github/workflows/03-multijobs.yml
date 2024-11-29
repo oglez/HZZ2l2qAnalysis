@@ -1,0 +1,20 @@
+name: multijobs
+on:
+  push:
+  pull_request:
+    types: [opened]
+jobs:
+  py3-job:
+    runs-on: ubuntu-latest
+    container: cmscloud/al9-cms:latest
+    steps:
+      - name: checking version
+        run: python3 -V
+#
+  py2-job:
+    runs-on: ubuntu-latest
+    container: cmscloud/cc7-cms:latest
+    steps:
+      - name: Checking version
+        run: python -V
+#
